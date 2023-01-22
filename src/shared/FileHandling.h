@@ -1,10 +1,20 @@
 #ifndef _FILE_HANDLING
 #define _FILE_HANDLING
 
-char *ReadFile(const char *fileAddress, int bufferSize);
+#include "LibProject.h"
 
-void ReadFileNoAlloc(const char *fileAddress, char *str);
+Enum(FileHandlingStatus){
+    FILE_CREATED,
+    FILE_EXISTED,
+    FILE_DIDNT_EXIST,
+};
 
-void WriteFile(const char *fileAddress, char *str);
+FileHandlingStatus ReadFileNoAlloc(const char *fileAddress, char *str);
+
+FileHandlingStatus WriteFile(const char *fileAddress, char *str);
+
+FileHandlingStatus CreateFile(const char *fileAddress);
+
+FileHandlingStatus CreateDirectory(const char *fileAddress);
 
 #endif
