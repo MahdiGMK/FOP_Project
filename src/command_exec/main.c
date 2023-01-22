@@ -62,25 +62,47 @@ void CMD_CAT()
 
     char file[1000] = {};
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
-    if (status == FILE_EXISTED)
+    if (status == FILE_DIDNT_EXIST)
     {
-        LOG("%s\n", file);
+        LOG("File Didn't Exist\n");
         return;
     }
-    LOG("File Didn't Exist\n");
+    LOG("%s\n", file);
 }
 
 void CMD_RemoveStr()
 {
     char address[100];
-    int l, c, sz, f;
+    int l, c, sz, b;
 
     ConsumeSTDIN("-file");
+    ReadStrSTDIN(address);
     ConsumeSTDIN("-pos");
     scanf("%d:%d", &l, &c);
     ConsumeSTDIN("-size");
     scanf("%d", &sz);
-    f = ConsumeSTDIN("-b");
+    b = ConsumeSTDIN("-f");
+
+    LOG("%s\n", address);
+
+    char file[1000];
+    FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
+    if (status == FILE_DIDNT_EXIST)
+    {
+        LOG("File Didn't Exist\n");
+        return;
+    }
+    char *ptr = GetPtrAt(file, l, c);
+    if (b)
+        ptr -= sz;
+    EraseSubstring(ptr, sz);
+    WriteFile(address + 1, file);
+    LOG("File Edited Successfully\n");
+}
+
+int streq(char *a, char *b)
+{
+    return !strcmp(a, b);
 }
 
 int main()
@@ -93,13 +115,13 @@ int main()
     while (1)
     {
         scanf("%s", cmd);
-        if (strcmp(cmd, "createfile") == 0)
+        if (streq(cmd, "createfile"))
             CMD_CreateFile();
-        else if (strcmp(cmd, "insertstr") == 0)
+        else if (streq(cmd, "insertstr"))
             CMD_InsertStr();
-        else if (strcmp(cmd, "cat") == 0)
+        else if (streq(cmd, "cat"))
             CMD_CAT();
-        else if (strcmp(cmd, "removestr"))
+        else if (streq(cmd, "removestr"))
             CMD_RemoveStr();
     }
 }
