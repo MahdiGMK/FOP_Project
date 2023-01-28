@@ -4,18 +4,25 @@
 
 int ReadOption(char **options)
 {
-    scanf(" ");
-    char opt[100];
-    scanf("%s", opt);
-    int id = 0;
-    while (*options)
+    char opt[IOSIZE];
+    while (1)
     {
-        if (strcmp(*options, opt) == 0)
+        *opt = getchar();
+        if (opt[0] == '\n')
+            return NWLINE;
+        if (opt[0] != ' ')
+            break;
+    }
+    scanf("%s", opt + 1);
+    int id = 0;
+    while (options[0])
+    {
+        if (strcmp(options[0], opt) == 0)
             return id;
         id++;
         options++;
     }
-    return -1;
+    return id;
 }
 
 int ReadStrSTDIN(char *str)
@@ -44,4 +51,12 @@ int ReadStrSTDIN(char *str)
     }
     str[0] = 0;
     return 0;
+}
+
+void ConsumeSTDIN()
+{
+    char c;
+    do
+        c = getchar();
+    while (c != '\n' && c != 0);
 }
