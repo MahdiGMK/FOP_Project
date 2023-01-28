@@ -1,6 +1,8 @@
 #ifndef _FILE_HANDLING
 #define _FILE_HANDLING
 
+#define FILESIZE (10000)
+
 #include "LibProject.h"
 
 Enum(FileHandlingStatus){

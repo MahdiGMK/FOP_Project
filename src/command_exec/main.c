@@ -10,13 +10,8 @@
     printf(str);    \
     fflush(stdout);
 
-void CMD_CreateFile()
+void _CreateFile(char *address)
 {
-    LOG("test\n\n");
-    char address[100];
-    // ConsumeSTDIN("-file");
-    ReadStrSTDIN(address);
-
     FileHandlingStatus status = CreateFile(address + 1);
     if (status == FILE_EXISTED)
     {
@@ -27,20 +22,35 @@ void CMD_CreateFile()
         LOG("File Created\n");
     }
 }
-
-void CMD_InsertStr()
+void CMD_CreateFile()
 {
-    LOG("test\n\n");
-    char address[100], pattern[100];
-    int l, c;
+    char address[IOSIZE];
 
-    // ConsumeSTDIN("-file");
-    ReadStrSTDIN(address);
-    // ConsumeSTDIN("-str");
-    ReadStrSTDIN(pattern);
-    // ConsumeSTDIN("-pos");
-    scanf("%d:%d", &l, &c);
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-file",
+            NULL});
 
+        switch (opt)
+        {
+        case NWLINE:
+            _CreateFile(address);
+            return;
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+
+        default:
+            ConsumeSTDIN();
+            LOG("Invalid Format\n");
+            break;
+        }
+    }
+}
+
+void _InsertStr(char *address, char *pattern, int l, int c)
+{
     char file[1000] = {};
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
@@ -54,6 +64,21 @@ void CMD_InsertStr()
     WriteFile(address + 1, file);
     LOG("File Edited Successfully\n");
 }
+void CMD_InsertStr()
+{
+    LOG("test\n\n");
+    char address[IOSIZE], pattern[IOSIZE];
+    int l, c;
+
+    // ConsumeSTDIN("-file");
+    ReadStrSTDIN(address);
+    // ConsumeSTDIN("-str");
+    ReadStrSTDIN(pattern);
+    // ConsumeSTDIN("-pos");
+    scanf("%d:%d", &l, &c);
+
+    _InsertStr(address, pattern, l, c);
+}
 
 void CMD_CAT()
 {
@@ -63,7 +88,7 @@ void CMD_CAT()
     // ConsumeSTDIN("-file");
     ReadStrSTDIN(address);
 
-    char file[1000] = {};
+    char file[FILESIZE] = {};
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
@@ -134,6 +159,13 @@ void ReadCMD()
 
 int main()
 {
+    // int opt = ReadOption((char *[]){
+    //     "test1",
+    //     "test2",
+    //     NULL});
+
+    // LOG("%d", opt);
+
     while (1)
     {
         ReadCMD();

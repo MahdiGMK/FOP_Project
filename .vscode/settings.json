@@ -4,6 +4,7 @@
         "array": "c",
         "string_view": "c",
         "initializer_list": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "filehandling.h": "c"
     }
 }
