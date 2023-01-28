@@ -12,8 +12,9 @@
 
 void CMD_CreateFile()
 {
+    LOG("test\n\n");
     char address[100];
-    ConsumeSTDIN("-file");
+    // ConsumeSTDIN("-file");
     ReadStrSTDIN(address);
 
     FileHandlingStatus status = CreateFile(address + 1);
@@ -29,14 +30,15 @@ void CMD_CreateFile()
 
 void CMD_InsertStr()
 {
+    LOG("test\n\n");
     char address[100], pattern[100];
     int l, c;
 
-    ConsumeSTDIN("-file");
+    // ConsumeSTDIN("-file");
     ReadStrSTDIN(address);
-    ConsumeSTDIN("-str");
+    // ConsumeSTDIN("-str");
     ReadStrSTDIN(pattern);
-    ConsumeSTDIN("-pos");
+    // ConsumeSTDIN("-pos");
     scanf("%d:%d", &l, &c);
 
     char file[1000] = {};
@@ -55,9 +57,10 @@ void CMD_InsertStr()
 
 void CMD_CAT()
 {
+    LOG("test\n\n");
     char address[100];
 
-    ConsumeSTDIN("-file");
+    // ConsumeSTDIN("-file");
     ReadStrSTDIN(address);
 
     char file[1000] = {};
@@ -75,13 +78,13 @@ void CMD_RemoveStr()
     char address[100];
     int l, c, sz, b;
 
-    ConsumeSTDIN("-file");
+    // ConsumeSTDIN("-file");
     ReadStrSTDIN(address);
-    ConsumeSTDIN("-pos");
+    // ConsumeSTDIN("-pos");
     scanf("%d:%d", &l, &c);
-    ConsumeSTDIN("-size");
+    // ConsumeSTDIN("-size");
     scanf("%d", &sz);
-    b = ConsumeSTDIN("-f");
+    // b = ConsumeSTDIN("-f");
 
     LOG("%s\n", address);
 
@@ -100,28 +103,39 @@ void CMD_RemoveStr()
     LOG("File Edited Successfully\n");
 }
 
-int streq(char *a, char *b)
+void ReadCMD()
 {
-    return !strcmp(a, b);
+    int opt = ReadOption((char *[]){
+        "createfile",
+        "insertstr",
+        "cat",
+        "removestr",
+        NULL});
+
+    switch (opt)
+    {
+    case 0:
+        CMD_CreateFile();
+        break;
+    case 1:
+        CMD_InsertStr();
+        break;
+    case 2:
+        CMD_CAT();
+        break;
+    case 3:
+        CMD_RemoveStr();
+        break;
+
+    default:
+        break;
+    }
 }
 
 int main()
 {
-    char cmd[100] = {};
-
-    // ReadStrSTDIN(cmd);
-    // LOG("%s\n", cmd);
-
     while (1)
     {
-        scanf("%s", cmd);
-        if (streq(cmd, "createfile"))
-            CMD_CreateFile();
-        else if (streq(cmd, "insertstr"))
-            CMD_InsertStr();
-        else if (streq(cmd, "cat"))
-            CMD_CAT();
-        else if (streq(cmd, "removestr"))
-            CMD_RemoveStr();
+        ReadCMD();
     }
 }

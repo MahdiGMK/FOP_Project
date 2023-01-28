@@ -2,14 +2,20 @@
 #include <string.h>
 #include "IOLib.h"
 
-int ConsumeSTDIN(const char *pattern)
+int ReadOption(char **options)
 {
     scanf(" ");
-    int len = strlen(pattern);
-    int eq = 1;
-    for (int i = 0; i < len; i++)
-        eq &= getchar() == pattern[i];
-    return !eq;
+    char opt[100];
+    scanf("%s", opt);
+    int id = 0;
+    while (*options)
+    {
+        if (strcmp(*options, opt) == 0)
+            return id;
+        id++;
+        options++;
+    }
+    return -1;
 }
 
 int ReadStrSTDIN(char *str)
