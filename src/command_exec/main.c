@@ -105,31 +105,47 @@ void CMD_CAT()
 void CMD_RemoveStr()
 {
     char address[100];
-    int l, c, sz, b;
+    int l, c, sz, b, f;
 
-    // ConsumeSTDIN("-file");
-    ReadStrSTDIN(address);
-    // ConsumeSTDIN("-pos");
-    scanf("%d:%d", &l, &c);
-    // ConsumeSTDIN("-size");
-    scanf("%d", &sz);
-    // b = ConsumeSTDIN("-f");
-
-    LOG("%s\n", address);
-
-    char file[1000];
-    FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
-    if (status == FILE_DIDNT_EXIST)
+    while (1)
     {
-        LOG("File Didn't Exist\n");
-        return;
+        int opt = ReadOption((char *[]){
+            "-file",
+            "-pos",
+            "-size",
+            "-f",
+            "-b",
+            NULL});
+
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+        case 1:
+            scanf("%d:%d", &l, &c);
+            break;
+        case 2:
+            scanf("%d", &sz);
+            break;
+        case 3:
+            f = 1;
+            break;
+        case 4:
+            b = 1;
+            break;
+        case NWLINE:
+            if (_RemoveStr(address, l, c, sz, b, f))
+                goto invalid;
+            return;
+
+        default:
+            ConsumeSTDIN();
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
     }
-    char *ptr = GetPtrAt(file, l, c);
-    if (b)
-        ptr -= sz;
-    EraseSubstring(ptr, sz);
-    WriteFile(address + 1, file);
-    LOG("File Edited Successfully\n");
 }
 
 void ReadCMD()
@@ -166,18 +182,6 @@ void ReadCMD()
 
 int main()
 {
-    // int opt1 = ReadOption((char *[]){
-    //     "createfile",
-    //     "insertstr",
-    //     "cat",
-    //     "removestr",
-    //     NULL});
-    // int opt2 = ReadOption((char *[]){
-    //     "-file",
-    //     NULL});
-
-    // LOG("%d%d", opt1, opt2);
-
     while (1)
     {
         ReadCMD();

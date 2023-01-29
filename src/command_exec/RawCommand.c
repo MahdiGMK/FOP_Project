@@ -51,3 +51,23 @@ int _CAT(char *address)
     LOG("%s", file);
     return 0;
 }
+
+int _RemoveStr(char *address, int l, int c, int sz, int b, int f)
+{
+    if (address[0] != '/' || l < 1 || c < 0 || !(b ^ f))
+        return 1;
+    char file[FILESIZE];
+    FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
+    if (status == FILE_DIDNT_EXIST)
+    {
+        LOG("File Didn't Exist");
+        return 0;
+    }
+    char *ptr = GetPtrAt(file, l, c);
+    if (b)
+        ptr -= sz;
+    EraseSubstring(ptr, sz);
+    WriteFile(address + 1, file);
+    LOG("File Edited Successfully");
+    return 0;
+}
