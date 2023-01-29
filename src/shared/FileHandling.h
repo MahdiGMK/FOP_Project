@@ -19,4 +19,8 @@ FileHandlingStatus CreateFile(const char *fileAddress);
 
 FileHandlingStatus CreateDirectory(const char *fileAddress);
 
+FileHandlingStatus CreateBackup(const char *fileAddress);
+
+FileHandlingStatus Undo(const char *fileAddress);
+
 #endif

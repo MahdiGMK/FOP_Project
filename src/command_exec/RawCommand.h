@@ -22,4 +22,6 @@ int _Cut(char *address, int l, int c, int sz, int b, int f);
 
 int _Paste(char *address, int l, int c);
 
+int _Undo(char *addres);
+
 #endif

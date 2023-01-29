@@ -271,6 +271,33 @@ void CMD_Paste()
     }
 }
 
+void CMD_Undo()
+{
+    char address[IOSIZE];
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-file",
+            NULL});
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+        case NWLINE:
+            if (_Undo(address))
+                goto invalid;
+            return;
+
+        default:
+            ConsumeSTDIN();
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
+    }
+}
+
 void ReadCMD()
 {
     int opt = ReadOption((char *[]){
@@ -281,6 +308,7 @@ void ReadCMD()
         "copy",
         "cut",
         "paste",
+        "undo",
         NULL});
 
     switch (opt)
@@ -305,6 +333,9 @@ void ReadCMD()
         break;
     case 6:
         CMD_Paste();
+        break;
+    case 7:
+        CMD_Undo();
         break;
 
     default:

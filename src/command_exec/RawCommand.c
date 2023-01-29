@@ -23,6 +23,9 @@ int _InsertStr(char *address, char *pattern, int l, int c)
 {
     if (address[0] != '/' || pattern[0] == 0 || l < 1 || c < 0)
         return 1;
+
+    CreateBackup(address + 1);
+
     char file[1000] = {};
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
@@ -57,6 +60,9 @@ int _RemoveStr(char *address, int l, int c, int sz, int b, int f)
 {
     if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
+
+    CreateBackup(address + 1);
+
     char file[FILESIZE];
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
@@ -99,6 +105,9 @@ int _Cut(char *address, int l, int c, int sz, int b, int f)
 {
     if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
+
+    CreateBackup(address + 1);
+
     char file[FILESIZE];
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
@@ -121,6 +130,9 @@ int _Paste(char *address, int l, int c)
 {
     if (address[0] != '/' || l < 1 || c < 0)
         return 1;
+
+    CreateBackup(address);
+
     char file[FILESIZE];
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
@@ -132,5 +144,20 @@ int _Paste(char *address, int l, int c)
     InsertPattern(ptr, clipboard);
     WriteFile(address + 1, file);
     LOG("Pasted Successfully");
+    return 0;
+}
+
+int _Undo(char *address)
+{
+    if (address[0] != '/')
+        return 1;
+    FileHandlingStatus status = Undo(address + 1);
+    if (status == FILE_DIDNT_EXIST)
+    {
+        LOG("File Didn't Exist");
+        return 0;
+    }
+
+    LOG("Successfull Undo");
     return 0;
 }

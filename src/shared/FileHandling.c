@@ -76,3 +76,34 @@ FileHandlingStatus CreateDirectory(const char *fileAddress)
         return FILE_EXISTED;
     return FILE_CREATED;
 }
+#include "IOLib.h"
+#include "StringLib.h"
+#include <string.h>
+FileHandlingStatus CreateBackup(const char *fileAddress)
+{
+    char hiddenAddress[IOSIZE];
+    hiddenAddress[0] = '.';
+    strcpy(hiddenAddress + 1, fileAddress);
+
+    char file[FILESIZE];
+    FileHandlingStatus status = ReadFileNoAlloc(fileAddress, file);
+    WriteFile(hiddenAddress, file);
+    return status;
+};
+
+FileHandlingStatus Undo(const char *fileAddress)
+{
+    char hiddenAddress[IOSIZE];
+    hiddenAddress[0] = '.';
+    strcpy(hiddenAddress + 1, fileAddress);
+
+    char file[FILESIZE], ufile[FILESIZE];
+    FileHandlingStatus status = ReadFileNoAlloc(fileAddress, file);
+    FileHandlingStatus ustatus = ReadFileNoAlloc(hiddenAddress, ufile);
+    if (ustatus == FILE_DIDNT_EXIST)
+        return FILE_DIDNT_EXIST;
+    WriteFile(fileAddress, ufile);
+    if (status == FILE_EXISTED)
+        WriteFile(hiddenAddress, file);
+    return FILE_EXISTED;
+}
