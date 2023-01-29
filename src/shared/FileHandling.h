@@ -2,6 +2,8 @@
 #define _FILE_HANDLING
 
 #define FILESIZE (10000)
+#define ADDRSIZE (1000)
+#define SUBDCNT (1000)
 
 #include "LibProject.h"
 
