@@ -5,6 +5,7 @@
         "string_view": "c",
         "initializer_list": "c",
         "stdio.h": "c",
-        "filehandling.h": "c"
+        "filehandling.h": "c",
+        "rawcommand.h": "c"
     }
 }
