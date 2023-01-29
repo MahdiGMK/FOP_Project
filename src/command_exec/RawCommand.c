@@ -37,14 +37,17 @@ int _InsertStr(char *address, char *pattern, int l, int c)
     return 0;
 }
 
-void _CAT(char *address)
+int _CAT(char *address)
 {
+    if (address[0] != '/')
+        return 1;
     char file[FILESIZE] = {};
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist\n");
-        return;
+        LOG("File Didn't Exist");
+        return 0;
     }
-    LOG("%s\n", file);
+    LOG("%s", file);
+    return 0;
 }

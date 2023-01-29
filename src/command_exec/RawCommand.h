@@ -12,6 +12,6 @@ int _CreateFile(char *address);
 
 int _InsertStr(char *address, char *pattern, int l, int c);
 
-void _CAT(char *address);
+int _CAT(char *address);
 
 #endif

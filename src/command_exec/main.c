@@ -76,11 +76,30 @@ void CMD_InsertStr()
 
 void CMD_CAT()
 {
-    LOG("test\n\n");
     char address[100];
 
-    // ConsumeSTDIN("-file");
-    ReadStrSTDIN(address);
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-file",
+            NULL});
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+        case NWLINE:
+            if (_CAT(address))
+                goto invalid;
+            return;
+
+        default:
+            ConsumeSTDIN();
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
+    }
 }
 
 void CMD_RemoveStr()
