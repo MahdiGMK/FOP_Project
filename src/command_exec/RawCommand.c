@@ -55,7 +55,7 @@ int _CAT(char *address)
 
 int _RemoveStr(char *address, int l, int c, int sz, int b, int f)
 {
-    if (address[0] != '/' || l < 1 || c < 0 || !(b ^ f))
+    if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
     char file[FILESIZE];
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
@@ -72,12 +72,14 @@ int _RemoveStr(char *address, int l, int c, int sz, int b, int f)
     LOG("File Edited Successfully");
     return 0;
 }
+
 char clipboard[FILESIZE];
-int _Copy(char *address, int l, int c, int sz, int f, int b)
+
+int _Copy(char *address, int l, int c, int sz, int b, int f)
 {
-    if (address[0] != '/' || l < 1 || c < 0 || !(b ^ f))
+    if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
-    char file[FILESIZE];
+    char file[FILESIZE] = {};
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
@@ -89,11 +91,13 @@ int _Copy(char *address, int l, int c, int sz, int f, int b)
         ptr -= sz;
     strcpy(clipboard, ptr);
     clipboard[sz] = 0;
+    LOG("Coppied Successfully");
     return 0;
 }
-int _Cut(char *address, int l, int c, int sz, int f, int b)
+
+int _Cut(char *address, int l, int c, int sz, int b, int f)
 {
-    if (address[0] != '/' || l < 1 || c < 0 || !(b ^ f))
+    if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
     char file[FILESIZE];
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
@@ -109,11 +113,13 @@ int _Cut(char *address, int l, int c, int sz, int f, int b)
     clipboard[sz] = 0;
     EraseSubstring(ptr, sz);
     WriteFile(address + 1, file);
+    LOG("Cutted Successfully");
     return 0;
 }
-int _Paste(char *address, int l, int c, int sz, int f, int b)
+
+int _Paste(char *address, int l, int c)
 {
-    if (address[0] != '/' || l < 1 || c < 0 || !(b ^ f))
+    if (address[0] != '/' || l < 1 || c < 0)
         return 1;
     char file[FILESIZE];
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
@@ -125,4 +131,6 @@ int _Paste(char *address, int l, int c, int sz, int f, int b)
     char *ptr = GetPtrAt(file, l, c);
     InsertPattern(ptr, clipboard);
     WriteFile(address + 1, file);
+    LOG("Pasted Successfully");
+    return 0;
 }

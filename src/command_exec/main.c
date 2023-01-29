@@ -76,7 +76,7 @@ void CMD_InsertStr()
 
 void CMD_CAT()
 {
-    char address[100];
+    char address[IOSIZE] = {};
 
     while (1)
     {
@@ -104,8 +104,8 @@ void CMD_CAT()
 
 void CMD_RemoveStr()
 {
-    char address[100];
-    int l, c, sz, b, f;
+    char address[IOSIZE];
+    int l = -1, c = -1, sz = -1, b = 0, f = 0;
 
     while (1)
     {
@@ -147,6 +147,129 @@ void CMD_RemoveStr()
         }
     }
 }
+void CMD_Copy()
+{
+    char address[IOSIZE];
+    int l = -1, c = -1, sz = -1, b = 0, f = 0;
+
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-file",
+            "-pos",
+            "-size",
+            "-f",
+            "-b",
+            NULL});
+
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+        case 1:
+            scanf("%d:%d", &l, &c);
+            break;
+        case 2:
+            scanf("%d", &sz);
+            break;
+        case 3:
+            f = 1;
+            break;
+        case 4:
+            b = 1;
+            break;
+        case NWLINE:
+            if (_Copy(address, l, c, sz, b, f))
+                goto invalid;
+            return;
+
+        default:
+            ConsumeSTDIN();
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
+    }
+}
+void CMD_Cut()
+{
+    char address[IOSIZE] = {};
+    int l = -1, c = -1, sz = -1, b = 0, f = 0;
+
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-file",
+            "-pos",
+            "-size",
+            "-f",
+            "-b",
+            NULL});
+
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+        case 1:
+            scanf("%d:%d", &l, &c);
+            break;
+        case 2:
+            scanf("%d", &sz);
+            break;
+        case 3:
+            f = 1;
+            break;
+        case 4:
+            b = 1;
+            break;
+        case NWLINE:
+            if (_Cut(address, l, c, sz, b, f))
+                goto invalid;
+            return;
+
+        default:
+            ConsumeSTDIN();
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
+    }
+}
+void CMD_Paste()
+{
+    char address[IOSIZE] = {};
+    int l = -1, c = -1;
+
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-file",
+            "-pos",
+            NULL});
+
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+        case 1:
+            scanf("%d:%d", &l, &c);
+            break;
+        case NWLINE:
+            if (_Paste(address, l, c))
+                goto invalid;
+            return;
+
+        default:
+            ConsumeSTDIN();
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
+    }
+}
 
 void ReadCMD()
 {
@@ -155,6 +278,9 @@ void ReadCMD()
         "insertstr",
         "cat",
         "removestr",
+        "copy",
+        "cut",
+        "paste",
         NULL});
 
     switch (opt)
@@ -170,6 +296,15 @@ void ReadCMD()
         break;
     case 3:
         CMD_RemoveStr();
+        break;
+    case 4:
+        CMD_Copy();
+        break;
+    case 5:
+        CMD_Cut();
+        break;
+    case 6:
+        CMD_Paste();
         break;
 
     default:

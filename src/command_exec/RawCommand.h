@@ -16,4 +16,10 @@ int _CAT(char *address);
 
 int _RemoveStr(char *address, int l, int c, int sz, int b, int f);
 
+int _Copy(char *address, int l, int c, int sz, int b, int f);
+
+int _Cut(char *address, int l, int c, int sz, int b, int f);
+
+int _Paste(char *address, int l, int c);
+
 #endif
