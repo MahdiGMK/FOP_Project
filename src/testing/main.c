@@ -2,15 +2,17 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <stdlib.h>
 
 int TraversDTree(char *path, char *prefix, int depth, int showAll)
 {
     // printf("%s\n", prefix);
 
     int plen = strlen(path);
-    char files[10000][100];
+
+    char(*files)[100] = malloc(sizeof(char[100]) * 1000);
     int fsize = 0;
-    char dirs[10000][100];
+    char(*dirs)[100] = malloc(sizeof(char[100]) * 1000);
     int dsize = 0;
 
     struct dirent *dent;
@@ -65,14 +67,15 @@ int TraversDTree(char *path, char *prefix, int depth, int showAll)
                 strcpy(prefix + pos, "│    ");
             else
                 strcpy(prefix + pos, "     ");
-            fflush(stdout);
             TraversDTree(p, prefix, depth + 1, showAll);
             prefix[pos] = 0;
         }
         else
             printf("%s\n", files[i - dsize]);
-        fflush(stdout);
     }
+
+    free(files);
+    free(dirs);
 
     return 0;
 }
@@ -80,5 +83,5 @@ int TraversDTree(char *path, char *prefix, int depth, int showAll)
 int main()
 {
     char prefix[10000] = {};
-    TraversDTree("./", prefix, 0, 0);
+    TraversDTree("/home/mahdigmk/Desktop", prefix, 0, 0);
 }
