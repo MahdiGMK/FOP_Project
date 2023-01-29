@@ -8,9 +8,9 @@ int ReadOption(char **options)
     while (1)
     {
         *opt = getchar();
-        if (opt[0] == '\n')
+        if (opt[0] == '\n' || opt[0] == 0)
             return NWLINE;
-        if (opt[0] != ' ')
+        if (opt[0] != ' ' && opt[0] != '\t')
             break;
     }
     scanf("%s", opt + 1);
@@ -41,15 +41,9 @@ int ReadStrSTDIN(char *str)
     }
     else
     {
-        while (1)
-        {
-            if (prv == ' ' || prv == '\n')
-                break;
-            str[0] = prv, str++;
-            prv = getchar();
-        }
+        str[0] = prv;
+        scanf("%s", str + 1);
     }
-    str[0] = 0;
     return 0;
 }
 

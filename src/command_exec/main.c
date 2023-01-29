@@ -8,23 +8,27 @@
 
 #define LOG(str...) \
     printf(str);    \
+    printf("\n");   \
     fflush(stdout);
 
-void _CreateFile(char *address)
+int _CreateFile(char *address)
 {
+    if (address[0] != '/')
+        return 1;
     FileHandlingStatus status = CreateFile(address + 1);
     if (status == FILE_EXISTED)
     {
-        LOG("File Existed\n");
+        LOG("File Existed");
     }
     else
     {
-        LOG("File Created\n");
+        LOG("File Created");
     }
+    return 0;
 }
 void CMD_CreateFile()
 {
-    char address[IOSIZE];
+    char address[IOSIZE] = {};
 
     while (1)
     {
@@ -35,7 +39,8 @@ void CMD_CreateFile()
         switch (opt)
         {
         case NWLINE:
-            _CreateFile(address);
+            if (_CreateFile(address))
+                goto invalid;
             return;
         case 0:
             ReadStrSTDIN(address);
@@ -43,8 +48,9 @@ void CMD_CreateFile()
 
         default:
             ConsumeSTDIN();
-            LOG("Invalid Format\n");
-            break;
+        invalid:
+            LOG("Invalid Format");
+            return;
         }
     }
 }
@@ -153,18 +159,26 @@ void ReadCMD()
         break;
 
     default:
+        ConsumeSTDIN();
+    case NWLINE:
+        LOG("Invalid Format");
         break;
     }
 }
 
 int main()
 {
-    // int opt = ReadOption((char *[]){
-    //     "test1",
-    //     "test2",
+    // int opt1 = ReadOption((char *[]){
+    //     "createfile",
+    //     "insertstr",
+    //     "cat",
+    //     "removestr",
+    //     NULL});
+    // int opt2 = ReadOption((char *[]){
+    //     "-file",
     //     NULL});
 
-    // LOG("%d", opt);
+    // LOG("%d%d", opt1, opt2);
 
     while (1)
     {
