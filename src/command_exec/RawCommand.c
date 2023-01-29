@@ -2,6 +2,9 @@
 #include <shared/StringLib.h>
 #include "RawCommand.h"
 #include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <stdlib.h>
 
 int _CreateFile(char *address)
 {
@@ -154,8 +157,89 @@ int _Undo(char *address)
     return 0;
 }
 
+int TraversDTree(char *path, char *prefix, int depth, int showAll, int mxdep)
+{
+    if (depth == mxdep)
+        return 0;
+    int plen = strlen(path);
+
+    char(*files)[ADDRSIZE] = malloc(sizeof(char[ADDRSIZE]) * SUBDCNT);
+    int fsize = 0;
+    char(*dirs)[ADDRSIZE] = malloc(sizeof(char[ADDRSIZE]) * SUBDCNT);
+    int dsize = 0;
+
+    struct dirent *dent;
+    DIR *srcdir = opendir(path);
+
+    if (srcdir == NULL)
+    {
+        perror("opendir");
+        return 1;
+    }
+
+    while ((dent = readdir(srcdir)) != NULL)
+    {
+        struct stat st;
+
+        if (strcmp(dent->d_name, ".") == 0 || strcmp(dent->d_name, "..") == 0)
+            continue;
+        if (dent->d_name[0] == '.' && !showAll)
+            continue;
+        if (fstatat(dirfd(srcdir), dent->d_name, &st, 0) < 0)
+        {
+            perror(dent->d_name);
+            continue;
+        }
+
+        if (S_ISDIR(st.st_mode))
+            strcpy(dirs[dsize++], dent->d_name);
+        else
+            strcpy(files[fsize++], dent->d_name);
+    }
+    closedir(srcdir);
+
+    int pos = strlen(prefix);
+    for (int i = 0; i < dsize + fsize; i++)
+    {
+        printf("%s", prefix);
+        if (i == dsize + fsize - 1)
+            printf("└────");
+        else
+            printf("├────");
+
+        if (i < dsize)
+        {
+            printf("%s\n", dirs[i]);
+
+            char p[ADDRSIZE];
+            strcpy(p, path);
+            p[plen] = '/';
+            strcpy(p + plen + 1, dirs[i]);
+
+            if (i < dsize + fsize - 1)
+                strcpy(prefix + pos, "│    ");
+            else
+                strcpy(prefix + pos, "     ");
+            TraversDTree(p, prefix, depth + 1, showAll, mxdep);
+            prefix[pos] = 0;
+        }
+        else
+            printf("%s\n", files[i - dsize]);
+    }
+
+    free(files);
+    free(dirs);
+
+    return 0;
+}
+
 int _Tree(int depth)
 {
     if (depth < -1)
         return 1;
+    char prefix[ADDRSIZE] = {};
+    printf("root\n");
+    TraversDTree("./root/", prefix, 0, 0, depth);
+    fflush(stdout);
+    return 0;
 }

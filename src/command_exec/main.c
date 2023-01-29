@@ -298,6 +298,24 @@ void CMD_Undo()
     }
 }
 
+void CMD_Tree()
+{
+    int dep;
+    scanf("%d", &dep);
+    int opt = ReadOption((char *[]){
+        NULL});
+    if (opt == NWLINE)
+    {
+        if (_Tree(dep))
+            LOG("Invalid Depth");
+    }
+    else
+    {
+        ConsumeSTDIN();
+        LOG("Invalid Format");
+    }
+}
+
 void ReadCMD()
 {
     int opt = ReadOption((char *[]){
@@ -309,6 +327,7 @@ void ReadCMD()
         "cut",
         "paste",
         "undo",
+        "tree",
         NULL});
 
     switch (opt)
@@ -336,6 +355,9 @@ void ReadCMD()
         break;
     case 7:
         CMD_Undo();
+        break;
+    case 8:
+        CMD_Tree();
         break;
 
     default:

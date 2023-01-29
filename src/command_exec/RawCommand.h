@@ -24,4 +24,6 @@ int _Paste(char *address, int l, int c);
 
 int _Undo(char *addres);
 
+int _Tree(int depth);
+
 #endif
