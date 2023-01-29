@@ -5,27 +5,8 @@
 #include <shared/FileHandling.h>
 #include <shared/IOLib.h>
 #include <shared/StringLib.h>
+#include "RawCommand.h"
 
-#define LOG(str...) \
-    printf(str);    \
-    printf("\n");   \
-    fflush(stdout);
-
-int _CreateFile(char *address)
-{
-    if (address[0] != '/')
-        return 1;
-    FileHandlingStatus status = CreateFile(address + 1);
-    if (status == FILE_EXISTED)
-    {
-        LOG("File Existed");
-    }
-    else
-    {
-        LOG("File Created");
-    }
-    return 0;
-}
 void CMD_CreateFile()
 {
     char address[IOSIZE] = {};
@@ -38,13 +19,13 @@ void CMD_CreateFile()
 
         switch (opt)
         {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
         case NWLINE:
             if (_CreateFile(address))
                 goto invalid;
             return;
-        case 0:
-            ReadStrSTDIN(address);
-            break;
 
         default:
             ConsumeSTDIN();
@@ -55,35 +36,42 @@ void CMD_CreateFile()
     }
 }
 
-void _InsertStr(char *address, char *pattern, int l, int c)
-{
-    char file[1000] = {};
-    FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
-    if (status == FILE_DIDNT_EXIST)
-    {
-        LOG("File Didn't Exist\n");
-        return;
-    }
-    ResolveSymbols(pattern);
-    char *ptr = GetPtrAt(file, l, c);
-    InsertPattern(ptr, pattern);
-    WriteFile(address + 1, file);
-    LOG("File Edited Successfully\n");
-}
 void CMD_InsertStr()
 {
-    LOG("test\n\n");
-    char address[IOSIZE], pattern[IOSIZE];
-    int l, c;
+    char address[IOSIZE] = {}, pattern[IOSIZE] = {};
+    int l = -1, c = -1;
 
-    // ConsumeSTDIN("-file");
-    ReadStrSTDIN(address);
-    // ConsumeSTDIN("-str");
-    ReadStrSTDIN(pattern);
-    // ConsumeSTDIN("-pos");
-    scanf("%d:%d", &l, &c);
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-file",
+            "-str",
+            "-pos",
+            NULL});
 
-    _InsertStr(address, pattern, l, c);
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+        case 1:
+            ReadStrSTDIN(pattern);
+            break;
+        case 2:
+            scanf("%d:%d", &l, &c);
+            break;
+        case NWLINE:
+            if (_InsertStr(address, pattern, l, c))
+                goto invalid;
+            return;
+
+        default:
+            ConsumeSTDIN();
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
+    }
 }
 
 void CMD_CAT()
@@ -93,15 +81,6 @@ void CMD_CAT()
 
     // ConsumeSTDIN("-file");
     ReadStrSTDIN(address);
-
-    char file[FILESIZE] = {};
-    FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
-    if (status == FILE_DIDNT_EXIST)
-    {
-        LOG("File Didn't Exist\n");
-        return;
-    }
-    LOG("%s\n", file);
 }
 
 void CMD_RemoveStr()
