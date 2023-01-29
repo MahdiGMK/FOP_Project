@@ -23,4 +23,6 @@ FileHandlingStatus CreateBackup(const char *fileAddress);
 
 FileHandlingStatus Undo(const char *fileAddress);
 
+FileHandlingStatus SafeWriteFile(const char *fileAddress, char *str);
+
 #endif

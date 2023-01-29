@@ -24,8 +24,6 @@ int _InsertStr(char *address, char *pattern, int l, int c)
     if (address[0] != '/' || pattern[0] == 0 || l < 1 || c < 0)
         return 1;
 
-    CreateBackup(address + 1);
-
     char file[1000] = {};
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
@@ -36,7 +34,7 @@ int _InsertStr(char *address, char *pattern, int l, int c)
     ResolveSymbols(pattern);
     char *ptr = GetPtrAt(file, l, c);
     InsertPattern(ptr, pattern);
-    WriteFile(address + 1, file);
+    SafeWriteFile(address + 1, file);
     LOG("File Edited Successfully");
     return 0;
 }
@@ -61,8 +59,6 @@ int _RemoveStr(char *address, int l, int c, int sz, int b, int f)
     if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
 
-    CreateBackup(address + 1);
-
     char file[FILESIZE];
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
@@ -74,7 +70,7 @@ int _RemoveStr(char *address, int l, int c, int sz, int b, int f)
     if (b)
         ptr -= sz;
     EraseSubstring(ptr, sz);
-    WriteFile(address + 1, file);
+    SafeWriteFile(address + 1, file);
     LOG("File Edited Successfully");
     return 0;
 }
@@ -106,8 +102,6 @@ int _Cut(char *address, int l, int c, int sz, int b, int f)
     if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
 
-    CreateBackup(address + 1);
-
     char file[FILESIZE];
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
@@ -121,7 +115,7 @@ int _Cut(char *address, int l, int c, int sz, int b, int f)
     strcpy(clipboard, ptr);
     clipboard[sz] = 0;
     EraseSubstring(ptr, sz);
-    WriteFile(address + 1, file);
+    SafeWriteFile(address + 1, file);
     LOG("Cutted Successfully");
     return 0;
 }
@@ -130,8 +124,6 @@ int _Paste(char *address, int l, int c)
 {
     if (address[0] != '/' || l < 1 || c < 0)
         return 1;
-
-    CreateBackup(address);
 
     char file[FILESIZE];
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
@@ -142,7 +134,7 @@ int _Paste(char *address, int l, int c)
     }
     char *ptr = GetPtrAt(file, l, c);
     InsertPattern(ptr, clipboard);
-    WriteFile(address + 1, file);
+    SafeWriteFile(address + 1, file);
     LOG("Pasted Successfully");
     return 0;
 }
@@ -160,4 +152,10 @@ int _Undo(char *address)
 
     LOG("Successfull Undo");
     return 0;
+}
+
+int _Tree(int depth)
+{
+    if (depth < -1)
+        return 1;
 }

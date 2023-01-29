@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include "FileHandling.h"
+#include "IOLib.h"
+#include "StringLib.h"
+#include <string.h>
+#include <dirent.h>
 
 FileHandlingStatus ReadFileNoAlloc(const char *fileAddress, char *str)
 {
@@ -76,9 +80,7 @@ FileHandlingStatus CreateDirectory(const char *fileAddress)
         return FILE_EXISTED;
     return FILE_CREATED;
 }
-#include "IOLib.h"
-#include "StringLib.h"
-#include <string.h>
+
 FileHandlingStatus CreateBackup(const char *fileAddress)
 {
     char hiddenAddress[IOSIZE];
@@ -106,4 +108,10 @@ FileHandlingStatus Undo(const char *fileAddress)
     if (status == FILE_EXISTED)
         WriteFile(hiddenAddress, file);
     return FILE_EXISTED;
+}
+
+FileHandlingStatus SafeWriteFile(const char *fileAddress, char *str)
+{
+    CreateBackup(fileAddress);
+    return WriteFile(fileAddress, str);
 }

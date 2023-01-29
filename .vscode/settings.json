@@ -6,6 +6,7 @@
         "initializer_list": "c",
         "stdio.h": "c",
         "filehandling.h": "c",
-        "rawcommand.h": "c"
+        "rawcommand.h": "c",
+        "stat.h": "c"
     }
 }
