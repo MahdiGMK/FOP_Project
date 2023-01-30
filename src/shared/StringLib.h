@@ -9,6 +9,8 @@ char *GetPtrAt(char *str, int ln, int cn);
 
 char *GetEndLine(char *ptr);
 
+int CountLines(char *str);
+
 void ResolveSymbols(char *str);
 
 #endif

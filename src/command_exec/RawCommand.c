@@ -269,6 +269,7 @@ int _Compare(char *address1, char *address2)
     }
 
     char *pt1 = file1, *pt2 = file2;
+    int lsz = max(CountLines(file1), CountLines(file2));
     int lno = 0;
     while (++lno)
     {
@@ -277,21 +278,37 @@ int _Compare(char *address1, char *address2)
         e1[0] = 0, e2[0] = 0;
         if (strcmp(pt1, pt2))
         {
-            int len = max(e1 - pt1, e2 - pt2);
-            for (int i = 0; i < (len + 1) / 2; i++)
+            for (int i = 0; i < 20; i++)
                 printf("=");
             printf(" #%d ", lno);
-            for (int i = 0; i < (len + 1) / 2; i++)
+            for (int i = 0; i < 20; i++)
                 printf("=");
             printf("\n");
             printf("%s\n", pt1);
             printf("%s\n", pt2);
         }
         e1[0] = end1, e2[0] = end2;
-        if (end1 && end2)
+        if (e1[0] && e2[0])
             pt1 = e1 + 1, pt2 = e2 + 1;
         else
+        {
+            char *pt = NULL, simbol = 0;
+            if (e1[0])
+                pt = e1 + 1, simbol = '<';
+            if (e2[0])
+                pt = e2 + 1, simbol = '>';
+            if (pt == NULL)
+                break;
+
+            for (int i = 0; i < 20; i++)
+                printf("%c", simbol);
+            printf(" #%d - #%d ", lno + 1, lsz);
+            for (int i = 0; i < 20; i++)
+                printf("%c", simbol);
+            printf("\n");
+            printf("%s\n", pt);
             break;
+        }
     }
     return 0;
 }
