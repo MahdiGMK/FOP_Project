@@ -26,6 +26,8 @@ int _Undo(char *addres);
 
 int _Tree(int depth);
 
-int _Compare(char *file1, char *file2);
+int _Compare(char *address1, char *address2);
+
+int _AutoIndent(char *address);
 
 #endif

@@ -342,6 +342,28 @@ void CMD_Compare()
     }
 }
 
+void CMD_AutoIndent()
+{
+    char address[ADDRSIZE];
+    ReadStrSTDIN(address);
+
+    int opt = ReadOption((char *[]){
+        NULL});
+    switch (opt)
+    {
+    case NWLINE:
+        if (_AutoIndent(address))
+            goto invalid;
+        return;
+
+    default:
+        ConsumeSTDIN();
+    invalid:
+        LOG("Invalid Format");
+        return;
+    }
+}
+
 void ReadCMD()
 {
     int opt = ReadOption((char *[]){
@@ -355,6 +377,7 @@ void ReadCMD()
         "undo",
         "tree",
         "compare",
+        "auto-indent",
         NULL});
 
     switch (opt)
@@ -389,6 +412,9 @@ void ReadCMD()
     case 9:
         CMD_Compare();
         break;
+    case 10:
+        CMD_AutoIndent();
+        break;
 
     default:
         ConsumeSTDIN();
@@ -400,8 +426,9 @@ void ReadCMD()
 
 int main()
 {
-    // while (1)
-    // {
-    //     ReadCMD();
-    // }
+    // _AutoIndent("/root/test.txt");
+    while (1)
+    {
+        ReadCMD();
+    }
 }

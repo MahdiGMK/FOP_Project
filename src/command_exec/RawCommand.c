@@ -318,7 +318,7 @@ int _AutoIndent(char *address)
     if (address[0] != '/')
         return 1;
     char file[FILESIZE] = {};
-    FileHandlingStatus status = ReadFileNoAlloc(address, file);
+    FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
         LOG("File Didn't Exist");
@@ -329,18 +329,24 @@ int _AutoIndent(char *address)
     int indlevel = 0;
     char *ptr = file, *wptr = res;
     int isLContent = 0, spc = 0;
+    int addnl = 1;
     while (ptr[0])
     {
         switch (ptr[0])
         {
         case '\n':
-            wptr[0] = '\n', wptr++;
+            if (addnl)
+                wptr[0] = '\n', wptr++;
 
-            isLContent = spc = 0;
+            isLContent = spc = 0, addnl = 1;
             break;
         case ' ':
             spc++;
             break;
+        case '\t':
+            spc += 4;
+            break;
+
         case '{':
             for (int i = 0; i < (isLContent ? 1 : 4 * indlevel); i++)
                 wptr[0] = ' ', wptr++;
@@ -348,18 +354,20 @@ int _AutoIndent(char *address)
             wptr[0] = '\n', wptr++;
 
             indlevel++;
-            spc = isLContent = 0;
+            spc = isLContent = 0, addnl = 0;
             break;
         case '}':
             indlevel--;
+            indlevel = max(indlevel, 0);
 
             if (isLContent)
                 wptr[0] = '\n', wptr++;
             for (int i = 0; i < 4 * indlevel; i++)
-                wptr[0] = '}', wptr++;
+                wptr[0] = ' ', wptr++;
+            wptr[0] = '}', wptr++;
             wptr[0] = '\n', wptr++;
 
-            spc = isLContent = 0;
+            spc = isLContent = 0, addnl = 0;
             break;
 
         default:
@@ -367,9 +375,13 @@ int _AutoIndent(char *address)
                 wptr[0] = ' ', wptr++;
             wptr[0] = ptr[0], wptr++;
 
-            isLContent = 1, spc = 0;
+            isLContent = 1, spc = 0, addnl = 1;
             break;
         }
         ptr++;
     }
+
+    SafeWriteFile(address + 1, res);
+    LOG("AutoIndented Successfully");
+    // printf("%s\n", res);
 }
