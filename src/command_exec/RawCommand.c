@@ -243,3 +243,55 @@ int _Tree(int depth)
     fflush(stdout);
     return 0;
 }
+
+int max(int a, int b)
+{
+    return a > b ? a : b;
+}
+int _Compare(char *address1, char *address2)
+{
+    if (address1[0] != '/' || address2[0] != '/')
+        return 1;
+
+    char file1[FILESIZE], file2[FILESIZE];
+    FileHandlingStatus status1 = ReadFileNoAlloc(address1 + 1, file1);
+    FileHandlingStatus status2 = ReadFileNoAlloc(address2 + 1, file2);
+
+    if (status1 == FILE_DIDNT_EXIST)
+    {
+        LOG("File1 Didn't Exist");
+        return 0;
+    }
+    if (status2 == FILE_DIDNT_EXIST)
+    {
+        LOG("File2 Didn't Exist");
+        return 0;
+    }
+
+    char *pt1 = file1, *pt2 = file2;
+    int lno = 0;
+    while (++lno)
+    {
+        char *e1 = GetEndLine(pt1), *e2 = GetEndLine(pt2);
+        char end1 = e1[0], end2 = e2[0];
+        e1[0] = 0, e2[0] = 0;
+        if (strcmp(pt1, pt2))
+        {
+            int len = max(e1 - pt1, e2 - pt2);
+            for (int i = 0; i < (len + 1) / 2; i++)
+                printf("=");
+            printf(" #%d ", lno);
+            for (int i = 0; i < (len + 1) / 2; i++)
+                printf("=");
+            printf("\n");
+            printf("%s\n", pt1);
+            printf("%s\n", pt2);
+        }
+        e1[0] = end1, e2[0] = end2;
+        if (end1 && end2)
+            pt1 = e1 + 1, pt2 = e2 + 1;
+        else
+            break;
+    }
+    return 0;
+}

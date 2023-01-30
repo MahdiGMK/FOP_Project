@@ -370,8 +370,9 @@ void ReadCMD()
 
 int main()
 {
-    while (1)
-    {
-        ReadCMD();
-    }
+    _Compare("/root/test1.txt", "/root/test2.txt");
+    // while (1)
+    // {
+    //     ReadCMD();
+    // }
 }

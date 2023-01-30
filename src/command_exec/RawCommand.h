@@ -26,4 +26,6 @@ int _Undo(char *addres);
 
 int _Tree(int depth);
 
+int _Compare(char *file1, char *file2);
+
 #endif

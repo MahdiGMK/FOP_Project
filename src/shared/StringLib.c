@@ -43,6 +43,21 @@ char *GetPtrAt(char *str, int ln, int cn)
     return ptr;
 }
 
+char *GetEndLine(char *ptr)
+{
+    while (ptr[0] != '\n' && ptr[0] != 0)
+        ptr++;
+    return ptr;
+}
+
+int CountLines(char *str)
+{
+    int res = 1;
+    while (str[0])
+        res += str[0] == '\n', str++;
+    return res;
+}
+
 void ResolveSymbols(char *str)
 {
     char *ptr = str;

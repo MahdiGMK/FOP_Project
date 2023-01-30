@@ -7,6 +7,8 @@ void EraseSubstring(char *ptr, int sz);
 
 char *GetPtrAt(char *str, int ln, int cn);
 
+char *GetEndLine(char *ptr);
+
 void ResolveSymbols(char *str);
 
 #endif
