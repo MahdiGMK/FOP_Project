@@ -304,15 +304,42 @@ void CMD_Tree()
     scanf("%d", &dep);
     int opt = ReadOption((char *[]){
         NULL});
-    if (opt == NWLINE)
+    switch (opt)
     {
+    case NWLINE:
         if (_Tree(dep))
+        {
             LOG("Invalid Depth");
-    }
-    else
-    {
+        }
+        return;
+
+    default:
         ConsumeSTDIN();
         LOG("Invalid Format");
+        return;
+    }
+}
+
+void CMD_Compare()
+{
+    char address1[ADDRSIZE], address2[ADDRSIZE];
+    ReadStrSTDIN(address1);
+    ReadStrSTDIN(address2);
+    int opt = ReadOption((char *[]){
+        NULL});
+    switch (opt)
+    {
+    case NWLINE:
+        if (_Compare(address1, address2))
+        {
+            LOG("Invalid Format");
+        }
+        return;
+
+    default:
+        ConsumeSTDIN();
+        LOG("Invalid Format");
+        return;
     }
 }
 
@@ -328,6 +355,7 @@ void ReadCMD()
         "paste",
         "undo",
         "tree",
+        "compare",
         NULL});
 
     switch (opt)
@@ -359,6 +387,9 @@ void ReadCMD()
     case 8:
         CMD_Tree();
         break;
+    case 9:
+        CMD_Compare();
+        break;
 
     default:
         ConsumeSTDIN();
@@ -370,9 +401,8 @@ void ReadCMD()
 
 int main()
 {
-    _Compare("/root/test1.txt", "/root/test2.txt");
-    // while (1)
-    // {
-    //     ReadCMD();
-    // }
+    while (1)
+    {
+        ReadCMD();
+    }
 }
