@@ -331,13 +331,12 @@ void CMD_Compare()
     {
     case NWLINE:
         if (_Compare(address1, address2))
-        {
-            LOG("Invalid Format");
-        }
+            goto invalid;
         return;
 
     default:
         ConsumeSTDIN();
+    invalid:
         LOG("Invalid Format");
         return;
     }
@@ -401,8 +400,8 @@ void ReadCMD()
 
 int main()
 {
-    while (1)
-    {
-        ReadCMD();
-    }
+    // while (1)
+    // {
+    //     ReadCMD();
+    // }
 }

@@ -253,7 +253,7 @@ int _Compare(char *address1, char *address2)
     if (address1[0] != '/' || address2[0] != '/')
         return 1;
 
-    char file1[FILESIZE], file2[FILESIZE];
+    char file1[FILESIZE] = {}, file2[FILESIZE] = {};
     FileHandlingStatus status1 = ReadFileNoAlloc(address1 + 1, file1);
     FileHandlingStatus status2 = ReadFileNoAlloc(address2 + 1, file2);
 
@@ -311,4 +311,65 @@ int _Compare(char *address1, char *address2)
         }
     }
     return 0;
+}
+
+int _AutoIndent(char *address)
+{
+    if (address[0] != '/')
+        return 1;
+    char file[FILESIZE] = {};
+    FileHandlingStatus status = ReadFileNoAlloc(address, file);
+    if (status == FILE_DIDNT_EXIST)
+    {
+        LOG("File Didn't Exist");
+        return 0;
+    }
+    char res[FILESIZE] = {};
+
+    int indlevel = 0;
+    char *ptr = file, *wptr = res;
+    int isLContent = 0, spc = 0;
+    while (ptr[0])
+    {
+        switch (ptr[0])
+        {
+        case '\n':
+            wptr[0] = '\n', wptr++;
+
+            isLContent = spc = 0;
+            break;
+        case ' ':
+            spc++;
+            break;
+        case '{':
+            for (int i = 0; i < (isLContent ? 1 : 4 * indlevel); i++)
+                wptr[0] = ' ', wptr++;
+            wptr[0] = '{', wptr++;
+            wptr[0] = '\n', wptr++;
+
+            indlevel++;
+            spc = isLContent = 0;
+            break;
+        case '}':
+            indlevel--;
+
+            if (isLContent)
+                wptr[0] = '\n', wptr++;
+            for (int i = 0; i < 4 * indlevel; i++)
+                wptr[0] = '}', wptr++;
+            wptr[0] = '\n', wptr++;
+
+            spc = isLContent = 0;
+            break;
+
+        default:
+            for (int i = 0; i < (isLContent ? spc : 4 * indlevel); i++)
+                wptr[0] = ' ', wptr++;
+            wptr[0] = ptr[0], wptr++;
+
+            isLContent = 1, spc = 0;
+            break;
+        }
+        ptr++;
+    }
 }
