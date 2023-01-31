@@ -388,11 +388,13 @@ int _AutoIndent(char *address)
 
 int _Grep(char **addresses, char *pattern, int c, int l)
 {
+    if (pattern[0] == 0)
+        return 1;
     int cnt = 0;
     int psz = strlen(pattern);
     int lnok[FILESIZE] = {};
 
-    while (addresses[0])
+    for (; addresses[0]; addresses++)
     {
         char file[FILESIZE] = {};
         FileHandlingStatus status = ReadFileNoAlloc(addresses[0] + 1, file);
@@ -450,11 +452,34 @@ int _Grep(char **addresses, char *pattern, int c, int l)
                 }
             }
         }
-
-        addresses++;
     }
     if (c)
     {
         printf("%d\n", cnt);
     }
+    return 0;
+}
+
+int _Find(char *address, char *pattern, int count, int at, int atn, int byword, int all)
+{
+    if (address[0] != '/' || pattern[0] == 0)
+        return 1;
+
+    char file[FILESIZE] = {};
+    FileHandlingStatus status = ReadFileNoAlloc(address, file);
+    if (status == FILE_DIDNT_EXIST)
+    {
+        LOG("File Didn't Exist");
+        return 0;
+    }
+
+    int psz = strlen(pattern);
+    int begs = pattern[0] == '*';
+    int ends = pattern[psz - 1] == '*';
+    if (begs)
+        pattern++, psz--;
+    if (ends)
+        pattern[psz] = 0;
+
+    char *ptr = FindPattern(file, pattern);
 }

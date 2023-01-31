@@ -87,3 +87,33 @@ void ResolveSymbols(char *str)
     while (save <= ptr)
         save[0] = 0, save++;
 }
+
+char *FindPattern(char *str, char *pattern)
+{
+    int slen = strlen(str);
+    int plen = strlen(pattern);
+
+    for (int i = 0; i <= slen - plen; i++, str++)
+    {
+        char tmp = str[plen];
+        str[plen] = 0;
+        if (strcmp(str, pattern) == 0)
+            return str;
+        str[plen] = tmp;
+    }
+
+    return NULL;
+}
+
+int IsWhiteChar(char c)
+{
+    return c == 0 || c == '\n' || c == ' ' || c == '\t';
+}
+
+int GetWordIndex(char *str, char *ptr)
+{
+    int res = 0;
+    for (; str < ptr; str++)
+        res += !IsWhiteChar(str[0]) && IsWhiteChar(str[1]);
+    return res;
+}
