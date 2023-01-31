@@ -30,4 +30,6 @@ int _Compare(char *address1, char *address2);
 
 int _AutoIndent(char *address);
 
+int _Grep(char **addresses, char *pattern, int c, int l);
+
 #endif

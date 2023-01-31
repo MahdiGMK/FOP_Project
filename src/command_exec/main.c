@@ -364,6 +364,66 @@ void CMD_AutoIndent()
     }
 }
 
+void CMD_Grep()
+{
+    char str[IOSIZE];
+    int l = 0, c = 0;
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-l",
+            "-c",
+            "-str",
+            "-files",
+            NULL});
+        switch (opt)
+        {
+        case 0:
+            l = 1;
+            break;
+        case 1:
+            c = 1;
+            break;
+        case 2:
+            if (ReadStrSTDIN(str))
+                goto invalid;
+            break;
+        case 3:
+            goto files;
+
+        default:
+            ConsumeSTDIN();
+        case NWLINE:
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
+    }
+files:
+    char *addr[IOSIZE] = {};
+    int sz = 0;
+    while (1)
+    {
+        addr[sz] = malloc(ADDRSIZE);
+        int rs = ReadStrSTDIN(addr[sz]);
+        switch (rs)
+        {
+        case NWLINE:
+            addr[sz] = NULL;
+            _Grep(addr, str, c, l);
+            goto done;
+
+        default:
+            break;
+        }
+        sz++;
+    }
+
+done:
+    for (int i = 0; i < sz; i++)
+        free(addr[sz]);
+}
+
 void ReadCMD()
 {
     int opt = ReadOption((char *[]){
@@ -378,6 +438,7 @@ void ReadCMD()
         "tree",
         "compare",
         "auto-indent",
+        "grep",
         NULL});
 
     switch (opt)
@@ -415,6 +476,9 @@ void ReadCMD()
     case 10:
         CMD_AutoIndent();
         break;
+    case 11:
+        CMD_Grep();
+        break;
 
     default:
         ConsumeSTDIN();
@@ -426,7 +490,6 @@ void ReadCMD()
 
 int main()
 {
-    // _AutoIndent("/root/test.txt");
     while (1)
     {
         ReadCMD();

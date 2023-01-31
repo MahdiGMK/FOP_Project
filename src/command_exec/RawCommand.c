@@ -385,3 +385,76 @@ int _AutoIndent(char *address)
     LOG("AutoIndented Successfully");
     // printf("%s\n", res);
 }
+
+int _Grep(char **addresses, char *pattern, int c, int l)
+{
+    int cnt = 0;
+    int psz = strlen(pattern);
+    int lnok[FILESIZE] = {};
+
+    while (addresses[0])
+    {
+        char file[FILESIZE] = {};
+        FileHandlingStatus status = ReadFileNoAlloc(addresses[0] + 1, file);
+        if (status == FILE_DIDNT_EXIST)
+        {
+            LOG("%s: File Didn't Exist", addresses[0]);
+            continue;
+        }
+        int fsz = strlen(file);
+        if (fsz < psz)
+            continue;
+
+        int fok = 0;
+
+        char *ptr = file;
+        int ln = 1;
+        do
+        {
+            char tmp = ptr[psz];
+            ptr[psz] = 0;
+            if (strcmp(ptr, pattern) == 0)
+            {
+                cnt += fok = lnok[ln] = 1;
+                ptr[psz] = tmp;
+                ptr = GetEndLine(ptr);
+            }
+            else
+                ptr[psz] = tmp;
+            ln += ptr[0] == '\n';
+        } while (ptr++[psz]);
+
+        if (fok)
+        {
+            if (l)
+            {
+                printf("%s\n", addresses[0]);
+            }
+            else if (!c)
+            {
+                ln = 1, ptr = file;
+                while (1)
+                {
+                    char *lnend = GetEndLine(ptr);
+                    if (lnok[ln])
+                    {
+                        char end = lnend[0];
+                        lnend[0] = 0;
+                        printf("%s:%d :: %s\n", addresses[0], ln, ptr);
+                        lnok[ln] = 0;
+                        lnend[0] = end;
+                    }
+                    if (!lnend[0])
+                        break;
+                    ptr = lnend + 1, ln++;
+                }
+            }
+        }
+
+        addresses++;
+    }
+    if (c)
+    {
+        printf("%d\n", cnt);
+    }
+}

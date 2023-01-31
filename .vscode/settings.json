@@ -7,6 +7,8 @@
         "stdio.h": "c",
         "filehandling.h": "c",
         "rawcommand.h": "c",
-        "stat.h": "c"
+        "stat.h": "c",
+        "string.h": "c",
+        "iolib.h": "c"
     }
 }

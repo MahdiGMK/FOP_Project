@@ -14,6 +14,9 @@ int ReadOption(char **options)
             break;
     }
     scanf("%s", opt + 1);
+    if (strcmp(opt, "=D") == 0)
+        return ARMAN;
+
     int id = 0;
     while (options[0])
     {
@@ -27,8 +30,17 @@ int ReadOption(char **options)
 
 int ReadStrSTDIN(char *str)
 {
-    scanf(" ");
-    char prv = getchar();
+    char prv;
+    do
+    {
+        prv = getchar();
+        if (prv == 0 || prv == '\n')
+            return NWLINE;
+    } while (prv == ' ');
+
+    // scanf(" ");
+    // char prv = getchar();
+
     if (prv == '\"')
     {
         while (1)
@@ -41,8 +53,12 @@ int ReadStrSTDIN(char *str)
     }
     else
     {
-        str[0] = prv;
-        scanf("%s", str + 1);
+        str++[0] = prv;
+        while ((str[0] = getchar()) != '\n' && str[0] != 0 && str[0] != ' ')
+            str++;
+        ungetc(str[0], stdin), str[0] = 0;
+        if (strcmp(str, "=D") == 0)
+            return ARMAN;
     }
     return 0;
 }
