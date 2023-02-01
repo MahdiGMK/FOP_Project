@@ -7,7 +7,7 @@
 #include <shared/StringLib.h>
 #include "RawCommand.h"
 
-void CMD_CreateFile()
+void CMD_CreateFile(FILE *stream)
 {
     char address[IOSIZE] = {};
 
@@ -23,7 +23,7 @@ void CMD_CreateFile()
             ReadStrSTDIN(address);
             break;
         case NWLINE:
-            if (_CreateFile(address))
+            if (_CreateFile(stream, address))
                 goto invalid;
             return;
 
@@ -36,7 +36,7 @@ void CMD_CreateFile()
     }
 }
 
-void CMD_InsertStr()
+void CMD_InsertStr(FILE *stream)
 {
     char address[IOSIZE] = {}, pattern[IOSIZE] = {};
     int l = -1, c = -1;
@@ -61,7 +61,7 @@ void CMD_InsertStr()
             scanf("%d:%d", &l, &c);
             break;
         case NWLINE:
-            if (_InsertStr(address, pattern, l, c))
+            if (_InsertStr(stream, address, pattern, l, c))
                 goto invalid;
             return;
 
@@ -74,7 +74,7 @@ void CMD_InsertStr()
     }
 }
 
-void CMD_CAT()
+void CMD_CAT(FILE *stream)
 {
     char address[IOSIZE] = {};
 
@@ -89,7 +89,7 @@ void CMD_CAT()
             ReadStrSTDIN(address);
             break;
         case NWLINE:
-            if (_CAT(address))
+            if (_CAT(stream, address))
                 goto invalid;
             return;
 
@@ -102,7 +102,7 @@ void CMD_CAT()
     }
 }
 
-void CMD_RemoveStr()
+void CMD_RemoveStr(FILE *stream)
 {
     char address[IOSIZE];
     int l = -1, c = -1, sz = -1, b = 0, f = 0;
@@ -135,7 +135,7 @@ void CMD_RemoveStr()
             b = 1;
             break;
         case NWLINE:
-            if (_RemoveStr(address, l, c, sz, b, f))
+            if (_RemoveStr(stream, address, l, c, sz, b, f))
                 goto invalid;
             return;
 
@@ -147,7 +147,7 @@ void CMD_RemoveStr()
         }
     }
 }
-void CMD_Copy()
+void CMD_Copy(FILE *stream)
 {
     char address[IOSIZE];
     int l = -1, c = -1, sz = -1, b = 0, f = 0;
@@ -180,7 +180,7 @@ void CMD_Copy()
             b = 1;
             break;
         case NWLINE:
-            if (_Copy(address, l, c, sz, b, f))
+            if (_Copy(stream, address, l, c, sz, b, f))
                 goto invalid;
             return;
 
@@ -192,7 +192,7 @@ void CMD_Copy()
         }
     }
 }
-void CMD_Cut()
+void CMD_Cut(FILE *stream)
 {
     char address[IOSIZE] = {};
     int l = -1, c = -1, sz = -1, b = 0, f = 0;
@@ -225,7 +225,7 @@ void CMD_Cut()
             b = 1;
             break;
         case NWLINE:
-            if (_Cut(address, l, c, sz, b, f))
+            if (_Cut(stream, address, l, c, sz, b, f))
                 goto invalid;
             return;
 
@@ -237,7 +237,7 @@ void CMD_Cut()
         }
     }
 }
-void CMD_Paste()
+void CMD_Paste(FILE *stream)
 {
     char address[IOSIZE] = {};
     int l = -1, c = -1;
@@ -258,7 +258,7 @@ void CMD_Paste()
             scanf("%d:%d", &l, &c);
             break;
         case NWLINE:
-            if (_Paste(address, l, c))
+            if (_Paste(stream, address, l, c))
                 goto invalid;
             return;
 
@@ -271,7 +271,7 @@ void CMD_Paste()
     }
 }
 
-void CMD_Undo()
+void CMD_Undo(FILE *stream)
 {
     char address[IOSIZE];
     while (1)
@@ -285,7 +285,7 @@ void CMD_Undo()
             ReadStrSTDIN(address);
             break;
         case NWLINE:
-            if (_Undo(address))
+            if (_Undo(stream, address))
                 goto invalid;
             return;
 
@@ -298,7 +298,7 @@ void CMD_Undo()
     }
 }
 
-void CMD_Tree()
+void CMD_Tree(FILE *stream)
 {
     int dep;
     scanf("%d", &dep);
@@ -307,7 +307,7 @@ void CMD_Tree()
     switch (opt)
     {
     case NWLINE:
-        if (_Tree(dep))
+        if (_Tree(stream, dep))
         {
             LOG("Invalid Depth");
         }
@@ -320,7 +320,7 @@ void CMD_Tree()
     }
 }
 
-void CMD_Compare()
+void CMD_Compare(FILE *stream)
 {
     char address1[ADDRSIZE], address2[ADDRSIZE];
     ReadStrSTDIN(address1);
@@ -330,7 +330,7 @@ void CMD_Compare()
     switch (opt)
     {
     case NWLINE:
-        if (_Compare(address1, address2))
+        if (_Compare(stream, address1, address2))
             goto invalid;
         return;
 
@@ -342,7 +342,7 @@ void CMD_Compare()
     }
 }
 
-void CMD_AutoIndent()
+void CMD_AutoIndent(FILE *stream)
 {
     char address[ADDRSIZE];
     ReadStrSTDIN(address);
@@ -352,7 +352,7 @@ void CMD_AutoIndent()
     switch (opt)
     {
     case NWLINE:
-        if (_AutoIndent(address))
+        if (_AutoIndent(stream, address))
             goto invalid;
         return;
 
@@ -364,7 +364,7 @@ void CMD_AutoIndent()
     }
 }
 
-void CMD_Grep()
+void CMD_Grep(FILE *stream)
 {
     char str[IOSIZE];
     int l = 0, c = 0;
@@ -410,7 +410,7 @@ files:
         {
         case NWLINE:
             addr[sz] = NULL;
-            _Grep(addr, str, c, l);
+            _Grep(stream, addr, str, c, l);
             goto done;
 
         default:
@@ -424,7 +424,7 @@ done:
         free(addr[sz]);
 }
 
-void CMD_Find()
+void CMD_Find(FILE *stream)
 {
     char address[ADDRSIZE] = {}, pattern[IOSIZE] = {};
     int count = 0, at = 0, atn = 0, byword = 0, all = 0;
@@ -462,7 +462,7 @@ void CMD_Find()
             byword = 1;
             break;
         case NWLINE:
-            if (_Find(address, pattern, count, at, atn, byword, all))
+            if (_Find(stream, address, pattern, count, at, atn, byword, all))
                 goto invalid;
             return;
 
@@ -475,7 +475,7 @@ void CMD_Find()
     }
 }
 
-void CMD_Replace()
+void CMD_Replace(FILE *stream)
 {
     char address[ADDRSIZE] = {}, pattern[IOSIZE] = {}, replace[IOSIZE] = {};
     int at = 0, atn = 0, all = 0;
@@ -509,7 +509,7 @@ void CMD_Replace()
             all = 1;
             break;
         case NWLINE:
-            if (_Replace(address, pattern, replace, at, atn, all))
+            if (_Replace(stream, address, pattern, replace, at, atn, all))
                 goto invalid;
             return;
 
@@ -522,7 +522,7 @@ void CMD_Replace()
     }
 }
 
-void ReadCMD()
+void ReadCMD(FILE *stream)
 {
     int opt = ReadOption((char *[]){
         "createfile",
@@ -544,46 +544,46 @@ void ReadCMD()
     switch (opt)
     {
     case 0:
-        CMD_CreateFile();
+        CMD_CreateFile(stream);
         break;
     case 1:
-        CMD_InsertStr();
+        CMD_InsertStr(stream);
         break;
     case 2:
-        CMD_CAT();
+        CMD_CAT(stream);
         break;
     case 3:
-        CMD_RemoveStr();
+        CMD_RemoveStr(stream);
         break;
     case 4:
-        CMD_Copy();
+        CMD_Copy(stream);
         break;
     case 5:
-        CMD_Cut();
+        CMD_Cut(stream);
         break;
     case 6:
-        CMD_Paste();
+        CMD_Paste(stream);
         break;
     case 7:
-        CMD_Undo();
+        CMD_Undo(stream);
         break;
     case 8:
-        CMD_Tree();
+        CMD_Tree(stream);
         break;
     case 9:
-        CMD_Compare();
+        CMD_Compare(stream);
         break;
     case 10:
-        CMD_AutoIndent();
+        CMD_AutoIndent(stream);
         break;
     case 11:
-        CMD_Grep();
+        CMD_Grep(stream);
         break;
     case 12:
-        CMD_Find();
+        CMD_Find(stream);
         break;
     case 13:
-        CMD_Replace();
+        CMD_Replace(stream);
         break;
 
     default:
@@ -602,6 +602,6 @@ int main()
 
     while (1)
     {
-        ReadCMD();
+        ReadCMD(stdout);
     }
 }

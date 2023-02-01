@@ -6,23 +6,23 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 
-int _CreateFile(char *address)
+int _CreateFile(FILE *stream, char *address)
 {
     if (address[0] != '/')
         return 1;
     FileHandlingStatus status = CreateFile(address + 1);
     if (status == FILE_EXISTED)
     {
-        LOG("File Existed");
+        OUTPUT("File Existed");
     }
     else
     {
-        LOG("File Created");
+        OUTPUT("File Created");
     }
     return 0;
 }
 
-int _InsertStr(char *address, char *pattern, int l, int c)
+int _InsertStr(FILE *stream, char *address, char *pattern, int l, int c)
 {
     if (address[0] != '/' || pattern[0] == 0 || l < 1 || c < 0)
         return 1;
@@ -31,18 +31,18 @@ int _InsertStr(char *address, char *pattern, int l, int c)
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
     ResolveSymbols(pattern);
     char *ptr = GetPtrAt(file, l, c);
     InsertPattern(ptr, pattern);
     SafeWriteFile(address + 1, file);
-    LOG("File Edited Successfully");
+    OUTPUT("File Edited Successfully");
     return 0;
 }
 
-int _CAT(char *address)
+int _CAT(FILE *stream, char *address)
 {
     if (address[0] != '/')
         return 1;
@@ -50,14 +50,14 @@ int _CAT(char *address)
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
-    LOG("%s", file);
+    OUTPUT("%s", file);
     return 0;
 }
 
-int _RemoveStr(char *address, int l, int c, int sz, int b, int f)
+int _RemoveStr(FILE *stream, char *address, int l, int c, int sz, int b, int f)
 {
     if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
@@ -66,7 +66,7 @@ int _RemoveStr(char *address, int l, int c, int sz, int b, int f)
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
     char *ptr = GetPtrAt(file, l, c);
@@ -74,13 +74,13 @@ int _RemoveStr(char *address, int l, int c, int sz, int b, int f)
         ptr -= sz;
     EraseSubstring(ptr, sz);
     SafeWriteFile(address + 1, file);
-    LOG("File Edited Successfully");
+    OUTPUT("File Edited Successfully");
     return 0;
 }
 
 char clipboard[FILESIZE];
 
-int _Copy(char *address, int l, int c, int sz, int b, int f)
+int _Copy(FILE *stream, char *address, int l, int c, int sz, int b, int f)
 {
     if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
@@ -88,7 +88,7 @@ int _Copy(char *address, int l, int c, int sz, int b, int f)
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
     char *ptr = GetPtrAt(file, l, c);
@@ -96,11 +96,11 @@ int _Copy(char *address, int l, int c, int sz, int b, int f)
         ptr -= sz;
     strcpy(clipboard, ptr);
     clipboard[sz] = 0;
-    LOG("Coppied Successfully");
+    OUTPUT("Coppied Successfully");
     return 0;
 }
 
-int _Cut(char *address, int l, int c, int sz, int b, int f)
+int _Cut(FILE *stream, char *address, int l, int c, int sz, int b, int f)
 {
     if (address[0] != '/' || l < 1 || c < 0 || sz < 1 || !(b ^ f))
         return 1;
@@ -109,7 +109,7 @@ int _Cut(char *address, int l, int c, int sz, int b, int f)
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
     char *ptr = GetPtrAt(file, l, c);
@@ -119,11 +119,11 @@ int _Cut(char *address, int l, int c, int sz, int b, int f)
     clipboard[sz] = 0;
     EraseSubstring(ptr, sz);
     SafeWriteFile(address + 1, file);
-    LOG("Cutted Successfully");
+    OUTPUT("Cutted Successfully");
     return 0;
 }
 
-int _Paste(char *address, int l, int c)
+int _Paste(FILE *stream, char *address, int l, int c)
 {
     if (address[0] != '/' || l < 1 || c < 0)
         return 1;
@@ -132,32 +132,32 @@ int _Paste(char *address, int l, int c)
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
     char *ptr = GetPtrAt(file, l, c);
     InsertPattern(ptr, clipboard);
     SafeWriteFile(address + 1, file);
-    LOG("Pasted Successfully");
+    OUTPUT("Pasted Successfully");
     return 0;
 }
 
-int _Undo(char *address)
+int _Undo(FILE *stream, char *address)
 {
     if (address[0] != '/')
         return 1;
     FileHandlingStatus status = Undo(address + 1);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
 
-    LOG("Successfull Undo");
+    OUTPUT("Successfull Undo");
     return 0;
 }
 
-int TraversDTree(char *path, char *prefix, int depth, int showAll, int mxdep)
+int TraversDTree(FILE *stream, char *path, char *prefix, int depth, int showAll, int mxdep)
 {
     if (depth == mxdep)
         return 0;
@@ -201,15 +201,15 @@ int TraversDTree(char *path, char *prefix, int depth, int showAll, int mxdep)
     int pos = strlen(prefix);
     for (int i = 0; i < dsize + fsize; i++)
     {
-        printf("%s", prefix);
+        PRINT("%s", prefix);
         if (i == dsize + fsize - 1)
-            printf("└────");
+            PRINT("└────");
         else
-            printf("├────");
+            PRINT("├────");
 
         if (i < dsize)
         {
-            printf("%s\n", dirs[i]);
+            PRINT("%s\n", dirs[i]);
 
             char p[ADDRSIZE];
             strcpy(p, path);
@@ -220,11 +220,11 @@ int TraversDTree(char *path, char *prefix, int depth, int showAll, int mxdep)
                 strcpy(prefix + pos, "│    ");
             else
                 strcpy(prefix + pos, "     ");
-            TraversDTree(p, prefix, depth + 1, showAll, mxdep);
+            TraversDTree(stream, p, prefix, depth + 1, showAll, mxdep);
             prefix[pos] = 0;
         }
         else
-            printf("%s\n", files[i - dsize]);
+            PRINT("%s\n", files[i - dsize]);
     }
 
     free(files);
@@ -233,14 +233,14 @@ int TraversDTree(char *path, char *prefix, int depth, int showAll, int mxdep)
     return 0;
 }
 
-int _Tree(int depth)
+int _Tree(FILE *stream, int depth)
 {
     if (depth < -1)
         return 1;
     char prefix[ADDRSIZE] = {};
-    printf("root\n");
-    TraversDTree("./root/", prefix, 0, 0, depth);
-    fflush(stdout);
+    PRINT("root\n");
+    TraversDTree(stream, "./root/", prefix, 0, 0, depth);
+    OUTPUT(" ");
     return 0;
 }
 
@@ -248,7 +248,7 @@ int max(int a, int b)
 {
     return a > b ? a : b;
 }
-int _Compare(char *address1, char *address2)
+int _Compare(FILE *stream, char *address1, char *address2)
 {
     if (address1[0] != '/' || address2[0] != '/')
         return 1;
@@ -259,12 +259,12 @@ int _Compare(char *address1, char *address2)
 
     if (status1 == FILE_DIDNT_EXIST)
     {
-        LOG("File1 Didn't Exist");
+        OUTPUT("File1 Didn't Exist");
         return 0;
     }
     if (status2 == FILE_DIDNT_EXIST)
     {
-        LOG("File2 Didn't Exist");
+        OUTPUT("File2 Didn't Exist");
         return 0;
     }
 
@@ -279,13 +279,13 @@ int _Compare(char *address1, char *address2)
         if (strcmp(pt1, pt2))
         {
             for (int i = 0; i < 20; i++)
-                printf("=");
-            printf(" #%d ", lno);
+                PRINT("=");
+            PRINT(" #%d ", lno);
             for (int i = 0; i < 20; i++)
-                printf("=");
-            printf("\n");
-            printf("%s\n", pt1);
-            printf("%s\n", pt2);
+                PRINT("=");
+            PRINT("\n");
+            PRINT("%s\n", pt1);
+            PRINT("%s\n", pt2);
         }
         e1[0] = end1, e2[0] = end2;
         if (e1[0] && e2[0])
@@ -301,19 +301,19 @@ int _Compare(char *address1, char *address2)
                 break;
 
             for (int i = 0; i < 20; i++)
-                printf("%c", simbol);
-            printf(" #%d - #%d ", lno + 1, lsz);
+                PRINT("%c", simbol);
+            PRINT(" #%d - #%d ", lno + 1, lsz);
             for (int i = 0; i < 20; i++)
-                printf("%c", simbol);
-            printf("\n");
-            printf("%s\n", pt);
+                PRINT("%c", simbol);
+            PRINT("\n");
+            PRINT("%s\n", pt);
             break;
         }
     }
     return 0;
 }
 
-int _AutoIndent(char *address)
+int _AutoIndent(FILE *stream, char *address)
 {
     if (address[0] != '/')
         return 1;
@@ -321,7 +321,7 @@ int _AutoIndent(char *address)
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
     char res[FILESIZE] = {};
@@ -382,11 +382,11 @@ int _AutoIndent(char *address)
     }
 
     SafeWriteFile(address + 1, res);
-    LOG("AutoIndented Successfully");
-    // printf("%s\n", res);
+    OUTPUT("AutoIndented Successfully");
+    // PRINT("%s\n", res);
 }
 
-int _Grep(char **addresses, char *pattern, int c, int l)
+int _Grep(FILE *stream, char **addresses, char *pattern, int c, int l)
 {
     if (pattern[0] == 0)
         return 1;
@@ -400,7 +400,7 @@ int _Grep(char **addresses, char *pattern, int c, int l)
         FileHandlingStatus status = ReadFileNoAlloc(addresses[0] + 1, file);
         if (status == FILE_DIDNT_EXIST)
         {
-            LOG("%s: File Didn't Exist", addresses[0]);
+            OUTPUT("%s: File Didn't Exist", addresses[0]);
             continue;
         }
         int fsz = strlen(file);
@@ -430,7 +430,7 @@ int _Grep(char **addresses, char *pattern, int c, int l)
         {
             if (l)
             {
-                printf("%s\n", addresses[0]);
+                PRINT("%s\n", addresses[0]);
             }
             else if (!c)
             {
@@ -442,7 +442,7 @@ int _Grep(char **addresses, char *pattern, int c, int l)
                     {
                         char end = lnend[0];
                         lnend[0] = 0;
-                        printf("%s:%d :: %s\n", addresses[0], ln, ptr);
+                        PRINT("%s:%d :: %s\n", addresses[0], ln, ptr);
                         lnok[ln] = 0;
                         lnend[0] = end;
                     }
@@ -455,12 +455,12 @@ int _Grep(char **addresses, char *pattern, int c, int l)
     }
     if (c)
     {
-        printf("%d\n", cnt);
+        PRINT("%d\n", cnt);
     }
     return 0;
 }
 
-int _Find(char *address, char *pattern, int count, int at, int atn, int byword, int all)
+int _Find(FILE *stream, char *address, char *pattern, int count, int at, int atn, int byword, int all)
 {
     if (address[0] != '/' || pattern[0] == 0 || (all && at))
         return 1;
@@ -469,7 +469,7 @@ int _Find(char *address, char *pattern, int count, int at, int atn, int byword, 
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
 
@@ -497,33 +497,33 @@ int _Find(char *address, char *pattern, int count, int at, int atn, int byword, 
             if (all)
             {
                 if (cnt == 1)
-                    printf("%d", val);
+                    PRINT("%d", val);
                 else
-                    printf(", %d", val);
+                    PRINT(", %d", val);
             }
             else
             {
                 if (cnt == atn)
                 {
-                    printf("%d", val);
+                    PRINT("%d", val);
                     goto done;
                 }
             }
         }
     }
     if (cnt < atn)
-        printf("-1");
+        PRINT("-1");
 done:
-    LOG(" ");
+    OUTPUT(" ");
 
     if (count)
     {
-        LOG("count : %d", cnt);
+        OUTPUT("count : %d", cnt);
     }
     return 0;
 }
 
-int _Replace(char *address, char *pattern, char *replace, int at, int atn, int all)
+int _Replace(FILE *stream, char *address, char *pattern, char *replace, int at, int atn, int all)
 {
     if (address[0] != '/' || pattern[0] == 0 || (all && at))
         return 1;
@@ -532,7 +532,7 @@ int _Replace(char *address, char *pattern, char *replace, int at, int atn, int a
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
-        LOG("File Didn't Exist");
+        OUTPUT("File Didn't Exist");
         return 0;
     }
 
@@ -584,11 +584,11 @@ int _Replace(char *address, char *pattern, char *replace, int at, int atn, int a
     }
     if (cnt < atn)
     {
-        LOG("Invalid Index");
+        OUTPUT("Invalid Index");
         return 0;
     }
 done:
     SafeWriteFile(address + 1, file);
-    LOG("Replacement Successful");
+    OUTPUT("Replacement Successful");
     return 0;
 }
