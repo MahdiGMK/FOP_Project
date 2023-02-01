@@ -462,11 +462,11 @@ int _Grep(char **addresses, char *pattern, int c, int l)
 
 int _Find(char *address, char *pattern, int count, int at, int atn, int byword, int all)
 {
-    if (address[0] != '/' || pattern[0] == 0)
+    if (address[0] != '/' || pattern[0] == 0 || (all && at))
         return 1;
 
     char file[FILESIZE] = {};
-    FileHandlingStatus status = ReadFileNoAlloc(address, file);
+    FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {
         LOG("File Didn't Exist");
@@ -475,11 +475,41 @@ int _Find(char *address, char *pattern, int count, int at, int atn, int byword, 
 
     int psz = strlen(pattern);
     int begs = pattern[0] == '*';
-    int ends = pattern[psz - 1] == '*';
     if (begs)
         pattern++, psz--;
+    int ends = pattern[psz - 1] == '*' && (psz <= 1 || pattern[psz - 2] != '\\');
     if (ends)
-        pattern[psz] = 0;
+        pattern[psz - 1] = 0, psz--;
 
-    char *ptr = FindPattern(file, pattern);
+    if (!at)
+        atn = 1;
+    int cnt = 0;
+    for (char *ptr = FindPattern(file, pattern); ptr; ptr = FindPattern(ptr + 1, pattern))
+    {
+        cnt++;
+        int val = ptr - file;
+        if (byword)
+            val = GetWordIndex(file, ptr);
+
+        if (all)
+        {
+            if (cnt == 1)
+                printf("%d", val);
+            else
+                printf(", %d", val);
+        }
+        else
+        {
+            if (cnt == atn)
+                printf("%d", val);
+        }
+    }
+    printf("\n");
+
+    if (count)
+    {
+        LOG("count : %d", cnt);
+    }
+    // LOG("%d", cnt);
+    return 0;
 }

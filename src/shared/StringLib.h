@@ -13,9 +13,9 @@ int CountLines(char *str);
 
 void ResolveSymbols(char *str);
 
-char *FindPattern(char *str, char *pattern);
+char *FindPattern(char *str, const char *pattern);
 
-int GetWordNum(char *str, char *ptr);
+int GetWordIndex(char *str, char *ptr);
 
 int IsWhiteChar(char c);
 

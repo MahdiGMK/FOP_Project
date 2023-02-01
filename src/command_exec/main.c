@@ -424,6 +424,57 @@ done:
         free(addr[sz]);
 }
 
+void CMD_Find()
+{
+    char address[ADDRSIZE] = {}, pattern[IOSIZE] = {};
+    int count = 0, at = 0, atn = 0, byword = 0, all = 0;
+
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-file",
+            "-str",
+            "-count",
+            "-at",
+            "-all",
+            "-byword",
+            NULL});
+
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+        case 1:
+            ReadStrSTDIN(pattern);
+            break;
+        case 2:
+            count = 1;
+            break;
+        case 3:
+            at = 1;
+            scanf("%d", &atn);
+            break;
+        case 4:
+            all = 1;
+            break;
+        case 5:
+            byword = 1;
+            break;
+        case NWLINE:
+            if (_Find(address, pattern, count, at, atn, byword, all))
+                goto invalid;
+            return;
+
+        default:
+            ConsumeSTDIN();
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
+    }
+}
+
 void ReadCMD()
 {
     int opt = ReadOption((char *[]){
@@ -439,6 +490,7 @@ void ReadCMD()
         "compare",
         "auto-indent",
         "grep",
+        "find",
         NULL});
 
     switch (opt)
@@ -478,6 +530,9 @@ void ReadCMD()
         break;
     case 11:
         CMD_Grep();
+        break;
+    case 12:
+        CMD_Find();
         break;
 
     default:

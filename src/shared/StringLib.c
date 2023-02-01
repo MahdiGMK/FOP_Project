@@ -62,7 +62,7 @@ void ResolveSymbols(char *str)
 {
     char *ptr = str;
     char *save = str;
-    while (*ptr)
+    while (ptr[0])
     {
         if (ptr[0] == '\\')
         {
@@ -77,6 +77,9 @@ void ResolveSymbols(char *str)
             case '\"':
                 save[0] = '\"';
                 break;
+            case '*':
+                save[0] = '*';
+                break;
             }
             ptr++;
         }
@@ -88,17 +91,24 @@ void ResolveSymbols(char *str)
         save[0] = 0, save++;
 }
 
-char *FindPattern(char *str, char *pattern)
+char *FindPattern(char *str, const char *pattern)
 {
     int slen = strlen(str);
     int plen = strlen(pattern);
+    if (plen == 0)
+    {
+        if (slen)
+            return str;
+        else
+            return NULL;
+    }
 
     for (int i = 0; i <= slen - plen; i++, str++)
     {
         char tmp = str[plen];
         str[plen] = 0;
         if (strcmp(str, pattern) == 0)
-            return str;
+            return str[plen] = tmp, str;
         str[plen] = tmp;
     }
 

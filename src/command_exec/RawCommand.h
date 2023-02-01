@@ -32,4 +32,6 @@ int _AutoIndent(char *address);
 
 int _Grep(char **addresses, char *pattern, int c, int l);
 
+int _Find(char *address, char *pattern, int count, int at, int atn, int byword, int all);
+
 #endif
