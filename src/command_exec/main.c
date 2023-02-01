@@ -30,7 +30,7 @@ void CMD_CreateFile(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -68,7 +68,7 @@ void CMD_InsertStr(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -96,7 +96,7 @@ void CMD_CAT(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -142,7 +142,7 @@ void CMD_RemoveStr(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -187,7 +187,7 @@ void CMD_Copy(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -232,7 +232,7 @@ void CMD_Cut(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -265,7 +265,7 @@ void CMD_Paste(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -292,13 +292,13 @@ void CMD_Undo(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
 }
 
-void CMD_Tree(FILE *stream)
+int CMD_Tree(FILE *stream)
 {
     int dep;
     scanf("%d", &dep);
@@ -307,17 +307,20 @@ void CMD_Tree(FILE *stream)
     switch (opt)
     {
     case NWLINE:
+    case ARMAN:
         if (_Tree(stream, dep))
         {
-            LOG("Invalid Depth");
+            OUTPUT("Invalid Depth");
+            return 1;
         }
-        return;
+        return 0;
 
     default:
         ConsumeSTDIN();
-        LOG("Invalid Format");
-        return;
+        OUTPUT("Invalid Format");
+        return 1;
     }
+    return 0;
 }
 
 void CMD_Compare(FILE *stream)
@@ -337,7 +340,7 @@ void CMD_Compare(FILE *stream)
     default:
         ConsumeSTDIN();
     invalid:
-        LOG("Invalid Format");
+        OUTPUT("Invalid Format");
         return;
     }
 }
@@ -359,7 +362,7 @@ void CMD_AutoIndent(FILE *stream)
     default:
         ConsumeSTDIN();
     invalid:
-        LOG("Invalid Format");
+        OUTPUT("Invalid Format");
         return;
     }
 }
@@ -395,7 +398,7 @@ void CMD_Grep(FILE *stream)
             ConsumeSTDIN();
         case NWLINE:
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -469,7 +472,7 @@ void CMD_Find(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -516,7 +519,7 @@ void CMD_Replace(FILE *stream)
         default:
             ConsumeSTDIN();
         invalid:
-            LOG("Invalid Format");
+            OUTPUT("Invalid Format");
             return;
         }
     }
@@ -568,7 +571,9 @@ void ReadCMD(FILE *stream)
         CMD_Undo(stream);
         break;
     case 8:
+        stream = GetOStream();
         CMD_Tree(stream);
+        fclose(stream);
         break;
     case 9:
         CMD_Compare(stream);
@@ -589,7 +594,7 @@ void ReadCMD(FILE *stream)
     default:
         ConsumeSTDIN();
     case NWLINE:
-        LOG("Invalid Format");
+        OUTPUT("Invalid Format");
         break;
     }
 }

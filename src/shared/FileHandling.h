@@ -6,6 +6,7 @@
 #define SUBDCNT (1000)
 
 #include "LibProject.h"
+#include <stdio.h>
 
 Enum(FileHandlingStatus){
     FILE_CREATED,
@@ -26,5 +27,7 @@ FileHandlingStatus CreateBackup(const char *fileAddress);
 FileHandlingStatus Undo(const char *fileAddress);
 
 FileHandlingStatus SafeWriteFile(const char *fileAddress, char *str);
+
+FILE *GetOStream();
 
 #endif

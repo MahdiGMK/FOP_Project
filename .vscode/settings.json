@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.embeddedhtml": "html",
         "test.h": "c",
         "array": "c",
         "string_view": "c",
@@ -9,6 +10,7 @@
         "rawcommand.h": "c",
         "stat.h": "c",
         "string.h": "c",
-        "iolib.h": "c"
+        "iolib.h": "c",
+        "dirent.h": "c"
     }
 }

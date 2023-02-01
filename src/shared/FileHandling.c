@@ -115,3 +115,8 @@ FileHandlingStatus SafeWriteFile(const char *fileAddress, char *str)
     CreateBackup(fileAddress);
     return WriteFile(fileAddress, str);
 }
+
+FILE *GetOStream()
+{
+    return fopen(".ostream.txt", "w");
+}
