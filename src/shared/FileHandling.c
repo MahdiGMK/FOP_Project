@@ -120,3 +120,7 @@ FILE *GetOStream()
 {
     return fopen(".ostream.txt", "w");
 }
+
+void PrintOStream()
+{
+}

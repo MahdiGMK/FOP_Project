@@ -7,7 +7,7 @@
 #include <shared/StringLib.h>
 #include "RawCommand.h"
 
-void CMD_CreateFile(FILE *stream)
+int CMD_CreateFile(FILE *stream)
 {
     char address[IOSIZE] = {};
 
@@ -23,20 +23,22 @@ void CMD_CreateFile(FILE *stream)
             ReadStrSTDIN(address);
             break;
         case NWLINE:
+        case ARMAN:
             if (_CreateFile(stream, address))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
 
-void CMD_InsertStr(FILE *stream)
+int CMD_InsertStr(FILE *stream)
 {
     char address[IOSIZE] = {}, pattern[IOSIZE] = {};
     int l = -1, c = -1;
@@ -61,20 +63,22 @@ void CMD_InsertStr(FILE *stream)
             scanf("%d:%d", &l, &c);
             break;
         case NWLINE:
+        case ARMAN:
             if (_InsertStr(stream, address, pattern, l, c))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
 
-void CMD_CAT(FILE *stream)
+int CMD_CAT(FILE *stream)
 {
     char address[IOSIZE] = {};
 
@@ -89,20 +93,22 @@ void CMD_CAT(FILE *stream)
             ReadStrSTDIN(address);
             break;
         case NWLINE:
+        case ARMAN:
             if (_CAT(stream, address))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
 
-void CMD_RemoveStr(FILE *stream)
+int CMD_RemoveStr(FILE *stream)
 {
     char address[IOSIZE];
     int l = -1, c = -1, sz = -1, b = 0, f = 0;
@@ -135,19 +141,21 @@ void CMD_RemoveStr(FILE *stream)
             b = 1;
             break;
         case NWLINE:
+        case ARMAN:
             if (_RemoveStr(stream, address, l, c, sz, b, f))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
-void CMD_Copy(FILE *stream)
+int CMD_Copy(FILE *stream)
 {
     char address[IOSIZE];
     int l = -1, c = -1, sz = -1, b = 0, f = 0;
@@ -180,19 +188,21 @@ void CMD_Copy(FILE *stream)
             b = 1;
             break;
         case NWLINE:
+        case ARMAN:
             if (_Copy(stream, address, l, c, sz, b, f))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
-void CMD_Cut(FILE *stream)
+int CMD_Cut(FILE *stream)
 {
     char address[IOSIZE] = {};
     int l = -1, c = -1, sz = -1, b = 0, f = 0;
@@ -225,19 +235,21 @@ void CMD_Cut(FILE *stream)
             b = 1;
             break;
         case NWLINE:
+        case ARMAN:
             if (_Cut(stream, address, l, c, sz, b, f))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
-void CMD_Paste(FILE *stream)
+int CMD_Paste(FILE *stream)
 {
     char address[IOSIZE] = {};
     int l = -1, c = -1;
@@ -258,20 +270,22 @@ void CMD_Paste(FILE *stream)
             scanf("%d:%d", &l, &c);
             break;
         case NWLINE:
+        case ARMAN:
             if (_Paste(stream, address, l, c))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
 
-void CMD_Undo(FILE *stream)
+int CMD_Undo(FILE *stream)
 {
     char address[IOSIZE];
     while (1)
@@ -285,17 +299,19 @@ void CMD_Undo(FILE *stream)
             ReadStrSTDIN(address);
             break;
         case NWLINE:
+        case ARMAN:
             if (_Undo(stream, address))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
 
 int CMD_Tree(FILE *stream)
@@ -311,19 +327,19 @@ int CMD_Tree(FILE *stream)
         if (_Tree(stream, dep))
         {
             OUTPUT("Invalid Depth");
-            return 1;
+            return -1;
         }
-        return 0;
+        return opt == ARMAN;
 
     default:
         ConsumeSTDIN();
         OUTPUT("Invalid Format");
-        return 1;
+        return -1;
     }
     return 0;
 }
 
-void CMD_Compare(FILE *stream)
+int CMD_Compare(FILE *stream)
 {
     char address1[ADDRSIZE], address2[ADDRSIZE];
     ReadStrSTDIN(address1);
@@ -333,19 +349,21 @@ void CMD_Compare(FILE *stream)
     switch (opt)
     {
     case NWLINE:
+    case ARMAN:
         if (_Compare(stream, address1, address2))
             goto invalid;
-        return;
+        return opt == ARMAN;
 
     default:
         ConsumeSTDIN();
     invalid:
         OUTPUT("Invalid Format");
-        return;
+        return -1;
     }
+    return 0;
 }
 
-void CMD_AutoIndent(FILE *stream)
+int CMD_AutoIndent(FILE *stream)
 {
     char address[ADDRSIZE];
     ReadStrSTDIN(address);
@@ -355,19 +373,21 @@ void CMD_AutoIndent(FILE *stream)
     switch (opt)
     {
     case NWLINE:
+    case ARMAN:
         if (_AutoIndent(stream, address))
             goto invalid;
-        return;
+        return opt == ARMAN;
 
     default:
         ConsumeSTDIN();
     invalid:
         OUTPUT("Invalid Format");
-        return;
+        return -1;
     }
+    return 0;
 }
 
-void CMD_Grep(FILE *stream)
+int CMD_Grep(FILE *stream) //?
 {
     char str[IOSIZE];
     int l = 0, c = 0;
@@ -399,7 +419,7 @@ void CMD_Grep(FILE *stream)
         case NWLINE:
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
 files:
@@ -411,23 +431,27 @@ files:
         int rs = ReadStrSTDIN(addr[sz]);
         switch (rs)
         {
-        case NWLINE:
-            addr[sz] = NULL;
-            _Grep(stream, addr, str, c, l);
-            goto done;
-
-        default:
+        case 0:
             break;
+        case NWLINE:
+        case ARMAN:
+            addr[sz] = NULL;
+            if (_Grep(stream, addr, str, c, l))
+                goto invalid;
+
+            for (int i = 0; i < sz; i++)
+                free(addr[sz]);
+            return rs == ARMAN;
+
+        default: //?
+            ConsumeSTDIN();
+            goto invalid;
         }
         sz++;
     }
-
-done:
-    for (int i = 0; i < sz; i++)
-        free(addr[sz]);
 }
 
-void CMD_Find(FILE *stream)
+int CMD_Find(FILE *stream)
 {
     char address[ADDRSIZE] = {}, pattern[IOSIZE] = {};
     int count = 0, at = 0, atn = 0, byword = 0, all = 0;
@@ -465,20 +489,22 @@ void CMD_Find(FILE *stream)
             byword = 1;
             break;
         case NWLINE:
+        case ARMAN:
             if (_Find(stream, address, pattern, count, at, atn, byword, all))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
 
-void CMD_Replace(FILE *stream)
+int CMD_Replace(FILE *stream)
 {
     char address[ADDRSIZE] = {}, pattern[IOSIZE] = {}, replace[IOSIZE] = {};
     int at = 0, atn = 0, all = 0;
@@ -512,17 +538,19 @@ void CMD_Replace(FILE *stream)
             all = 1;
             break;
         case NWLINE:
+        case ARMAN:
             if (_Replace(stream, address, pattern, replace, at, atn, all))
                 goto invalid;
-            return;
+            return opt == ARMAN;
 
         default:
             ConsumeSTDIN();
         invalid:
             OUTPUT("Invalid Format");
-            return;
+            return -1;
         }
     }
+    return 0;
 }
 
 void ReadCMD(FILE *stream)
@@ -571,7 +599,7 @@ void ReadCMD(FILE *stream)
         CMD_Undo(stream);
         break;
     case 8:
-        stream = GetOStream();
+        // stream = GetOStream();
         CMD_Tree(stream);
         fclose(stream);
         break;
@@ -607,6 +635,6 @@ int main()
 
     while (1)
     {
-        ReadCMD(stdout);
+        ReadCMD(GetOStream());
     }
 }
