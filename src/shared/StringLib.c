@@ -127,3 +127,22 @@ int GetWordIndex(char *str, char *ptr)
         res += !IsWhiteChar(str[0]) && IsWhiteChar(str[1]);
     return res;
 }
+
+char *GetWordBegin(char *str, char *ptr)
+{
+    for (; ptr >= str; ptr--)
+    {
+        if (IsWhiteChar(ptr[0]))
+            return ptr + 1;
+    }
+    return str;
+}
+
+char *GetWordEnd(char *ptr)
+{
+    for (;; ptr++)
+    {
+        if (IsWhiteChar(ptr[0]))
+            return ptr;
+    }
+}

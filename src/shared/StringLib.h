@@ -17,6 +17,10 @@ char *FindPattern(char *str, const char *pattern);
 
 int GetWordIndex(char *str, char *ptr);
 
+char *GetWordBegin(char *str, char *ptr);
+
+char *GetWordEnd(char *ptr);
+
 int IsWhiteChar(char c);
 
 #endif

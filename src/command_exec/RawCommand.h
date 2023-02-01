@@ -34,4 +34,6 @@ int _Grep(char **addresses, char *pattern, int c, int l);
 
 int _Find(char *address, char *pattern, int count, int at, int atn, int byword, int all);
 
+int _Replace(char *address, char *pattern, char *replace, int at, int atn, int all);
+
 #endif

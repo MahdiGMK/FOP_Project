@@ -484,32 +484,108 @@ int _Find(char *address, char *pattern, int count, int at, int atn, int byword, 
     if (!at)
         atn = 1;
     int cnt = 0;
+    char *lprint = NULL;
     for (char *ptr = FindPattern(file, pattern); ptr; ptr = FindPattern(ptr + 1, pattern))
     {
-        cnt++;
-        int val = ptr - file;
-        if (byword)
-            val = GetWordIndex(file, ptr);
-
-        if (all)
+        int wind = GetWordIndex(file, ptr - begs);
+        for (char *pptr = begs ? GetWordBegin(file, ptr - 1) : ptr; pptr <= ptr; pptr++)
         {
-            if (cnt == 1)
-                printf("%d", val);
+            int val = pptr - file;
+            if (byword)
+                val = wind;
+            cnt++;
+            if (all)
+            {
+                if (cnt == 1)
+                    printf("%d", val);
+                else
+                    printf(", %d", val);
+            }
             else
-                printf(", %d", val);
-        }
-        else
-        {
-            if (cnt == atn)
-                printf("%d", val);
+            {
+                if (cnt == atn)
+                {
+                    printf("%d", val);
+                    goto done;
+                }
+            }
         }
     }
-    printf("\n");
+    if (cnt < atn)
+        printf("-1");
+done:
+    LOG(" ");
 
     if (count)
     {
         LOG("count : %d", cnt);
     }
-    // LOG("%d", cnt);
+    return 0;
+}
+
+int _Replace(char *address, char *pattern, char *replace, int at, int atn, int all)
+{
+    if (address[0] != '/' || pattern[0] == 0 || (all && at))
+        return 1;
+
+    char file[FILESIZE] = {};
+    FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
+    if (status == FILE_DIDNT_EXIST)
+    {
+        LOG("File Didn't Exist");
+        return 0;
+    }
+
+    int psz = strlen(pattern);
+    int begs = pattern[0] == '*';
+    if (begs)
+        pattern++, psz--;
+    int ends = pattern[psz - 1] == '*' && (psz <= 1 || pattern[psz - 1] != '\\');
+    if (ends)
+        pattern[psz - 1] = 0, psz--;
+
+    if (!at)
+        atn = 1;
+    int cnt = 0;
+    char *lprint = NULL;
+    for (char *ptr = FindPattern(file, pattern); ptr; ptr = FindPattern(ptr + 1, pattern))
+    {
+        if (all)
+        {
+            char *begpt = ptr;
+            char *endpt = ptr + psz;
+            if (begs)
+                begpt = GetWordBegin(file, begpt - 1);
+            if (ends)
+                endpt = GetWordEnd(endpt);
+
+            EraseSubstring(begpt, endpt - begpt);
+            InsertPattern(begpt, replace);
+            ptr = begpt;
+        }
+        else
+            for (char *pptr = begs ? GetWordBegin(file, ptr - 1) : ptr; pptr <= ptr; pptr++)
+            {
+                cnt++;
+                if (cnt == atn)
+                {
+                    char *begpt = pptr;
+                    char *endpt = pptr + psz;
+                    if (begs)
+                        begpt = GetWordBegin(file, begpt - 1);
+                    if (ends)
+                        endpt = GetWordEnd(endpt);
+
+                    EraseSubstring(begpt, endpt - begpt);
+                    InsertPattern(begpt, replace);
+                    goto done;
+                }
+            }
+    }
+done:
+    printf("%s", file);
+    // if (cnt < atn)
+    //     printf("-1");
+    LOG(" ");
     return 0;
 }

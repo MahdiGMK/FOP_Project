@@ -545,6 +545,10 @@ void ReadCMD()
 
 int main()
 {
+    // char pattern[10] = "bro *";
+    // _Find("/root/test.txt", pattern, 1, 0, 0, 0, 1);
+    // _Replace("/root/test.txt", pattern, "z", 0, 0, 1);
+
     while (1)
     {
         ReadCMD();
