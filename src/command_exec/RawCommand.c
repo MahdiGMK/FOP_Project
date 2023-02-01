@@ -582,10 +582,13 @@ int _Replace(char *address, char *pattern, char *replace, int at, int atn, int a
                 }
             }
     }
+    if (cnt < atn)
+    {
+        LOG("Invalid Index");
+        return 0;
+    }
 done:
-    printf("%s", file);
-    // if (cnt < atn)
-    //     printf("-1");
-    LOG(" ");
+    SafeWriteFile(address + 1, file);
+    LOG("Replacement Successful");
     return 0;
 }

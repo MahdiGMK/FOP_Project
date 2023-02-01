@@ -475,6 +475,53 @@ void CMD_Find()
     }
 }
 
+void CMD_Replace()
+{
+    char address[ADDRSIZE] = {}, pattern[IOSIZE] = {}, replace[IOSIZE] = {};
+    int at = 0, atn = 0, all = 0;
+
+    while (1)
+    {
+        int opt = ReadOption((char *[]){
+            "-file",
+            "-str1",
+            "-str2",
+            "-at",
+            "-all",
+            NULL});
+
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(address);
+            break;
+        case 1:
+            ReadStrSTDIN(pattern);
+            break;
+        case 2:
+            ReadStrSTDIN(replace);
+            break;
+        case 3:
+            at = 1;
+            scanf("%d", &atn);
+            break;
+        case 4:
+            all = 1;
+            break;
+        case NWLINE:
+            if (_Replace(address, pattern, replace, at, atn, all))
+                goto invalid;
+            return;
+
+        default:
+            ConsumeSTDIN();
+        invalid:
+            LOG("Invalid Format");
+            return;
+        }
+    }
+}
+
 void ReadCMD()
 {
     int opt = ReadOption((char *[]){
@@ -491,6 +538,7 @@ void ReadCMD()
         "auto-indent",
         "grep",
         "find",
+        "replace",
         NULL});
 
     switch (opt)
@@ -533,6 +581,9 @@ void ReadCMD()
         break;
     case 12:
         CMD_Find();
+        break;
+    case 13:
+        CMD_Replace();
         break;
 
     default:
