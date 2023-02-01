@@ -53,11 +53,12 @@ int ReadStrSTDIN(char *str)
     }
     else
     {
+        char *beg = str;
         str++[0] = prv;
         while ((str[0] = getchar()) != '\n' && str[0] != 0 && str[0] != ' ')
             str++;
         ungetc(str[0], stdin), str[0] = 0;
-        if (strcmp(str, "=D") == 0)
+        if (strcmp(beg, "=D") == 0)
             return ARMAN;
     }
     return 0;

@@ -26,8 +26,7 @@ int _InsertStr(FILE *stream, char *address, char *pattern, int l, int c)
 {
     if (address[0] != '/' || pattern[0] == 0 || l < 1 || c < 0)
         return 1;
-
-    char file[1000] = {};
+    char file[FILESIZE] = {};
     FileHandlingStatus status = ReadFileNoAlloc(address + 1, file);
     if (status == FILE_DIDNT_EXIST)
     {

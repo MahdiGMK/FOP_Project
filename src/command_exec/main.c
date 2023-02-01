@@ -430,8 +430,7 @@ int CMD_Grep(FILE *stream, char *inputstream) //?
     }
 files:
     char *addr[IOSIZE] = {};
-    int sz = 0;
-    while (1)
+    for (int sz = 0;; sz++)
     {
         addr[sz] = malloc(ADDRSIZE);
         int rs = ReadStrSTDIN(addr[sz]);
@@ -439,6 +438,7 @@ files:
         {
         case 0:
             break;
+
         case NWLINE:
         case ARMAN:
             addr[sz] = NULL;
@@ -453,7 +453,6 @@ files:
             ConsumeSTDIN();
             goto invalid;
         }
-        sz++;
     }
 }
 
@@ -649,9 +648,11 @@ void ReadCMD()
 
 int main()
 {
-    // char pattern[10] = "bro *";
+    char pattern[10] = "t";
     // _Find("/root/test.txt", pattern, 1, 0, 0, 0, 1);
     // _Replace("/root/test.txt", pattern, "z", 0, 0, 1);
+
+    // LOG("%d", CMD_Grep(CreateOStream(), pattern));
 
     while (1)
     {
