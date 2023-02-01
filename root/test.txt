@@ -1,1 +1,19 @@
-test bro z
+root
+├────test.txt
+└────t2.txt
+ 
+File Created
+root
+├────t
+│    └────t
+│         └────t
+│              └────t
+│                   └────t.txt
+├────z
+│    └────z
+│         └────z
+│              └────z
+│                   └────z.txt
+├────test.txt
+└────t2.txt
+ 

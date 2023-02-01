@@ -9,7 +9,7 @@
 
 int CMD_CreateFile(FILE *stream, char *inputstream)
 {
-    char address[IOSIZE] = {};
+    char address[ADDRSIZE] = {};
 
     while (1)
     {
@@ -40,7 +40,8 @@ int CMD_CreateFile(FILE *stream, char *inputstream)
 
 int CMD_InsertStr(FILE *stream, char *inputstream)
 {
-    char address[IOSIZE] = {}, pattern[IOSIZE] = {};
+    char address[ADDRSIZE] = {}, pattern[FILESIZE] = {};
+    strcpy(pattern, inputstream);
     int l = -1, c = -1;
 
     while (1)
@@ -155,6 +156,7 @@ int CMD_RemoveStr(FILE *stream, char *inputstream)
     }
     return 0;
 }
+
 int CMD_Copy(FILE *stream, char *inputstream)
 {
     char address[IOSIZE];
@@ -202,6 +204,7 @@ int CMD_Copy(FILE *stream, char *inputstream)
     }
     return 0;
 }
+
 int CMD_Cut(FILE *stream, char *inputstream)
 {
     char address[IOSIZE] = {};
@@ -249,6 +252,7 @@ int CMD_Cut(FILE *stream, char *inputstream)
     }
     return 0;
 }
+
 int CMD_Paste(FILE *stream, char *inputstream)
 {
     char address[IOSIZE] = {};
@@ -389,7 +393,9 @@ int CMD_AutoIndent(FILE *stream, char *inputstream)
 
 int CMD_Grep(FILE *stream, char *inputstream) //?
 {
-    char str[IOSIZE];
+    char str[FILESIZE];
+    strcpy(str, inputstream);
+
     int l = 0, c = 0;
     while (1)
     {
@@ -454,6 +460,8 @@ files:
 int CMD_Find(FILE *stream, char *inputstream)
 {
     char address[ADDRSIZE] = {}, pattern[IOSIZE] = {};
+    strcpy(pattern, inputstream);
+
     int count = 0, at = 0, atn = 0, byword = 0, all = 0;
 
     while (1)
@@ -630,6 +638,9 @@ void ReadCMD()
         break;
     }
     fclose(stream);
+
+    if (res == 1)
+        ReadCMD();
 
     // PrintOStream();
 
