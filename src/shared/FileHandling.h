@@ -28,6 +28,10 @@ FileHandlingStatus Undo(const char *fileAddress);
 
 FileHandlingStatus SafeWriteFile(const char *fileAddress, char *str);
 
-FILE *GetOStream();
+FILE *CreateOStream();
+
+FileHandlingStatus ReadOStream(char *str);
+
+void PrintOStream();
 
 #endif

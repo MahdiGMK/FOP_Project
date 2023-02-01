@@ -116,11 +116,24 @@ FileHandlingStatus SafeWriteFile(const char *fileAddress, char *str)
     return WriteFile(fileAddress, str);
 }
 
-FILE *GetOStream()
+FILE *CreateOStream()
 {
     return fopen(".ostream.txt", "w");
 }
 
+FileHandlingStatus ReadOStream(char *str)
+{
+    return ReadFileNoAlloc(".ostream.txt", str);
+}
+
 void PrintOStream()
 {
+    FILE *stream = fopen(".ostream.txt", "r");
+    if (!stream)
+        return;
+    char c;
+    while ((c = fgetc(stream)) != EOF)
+    {
+        putchar(c);
+    }
 }
