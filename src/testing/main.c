@@ -83,6 +83,12 @@ int TraversDTree(char *path, char *prefix, int depth, int showAll)
 
 int main()
 {
-    char prefix[10000] = {};
-    TraversDTree("/home/mahdigmk/Desktop", prefix, 0, 0);
+    char *stream = "10 20";
+
+    int n1, n2;
+
+    sscanf(stream, "%d", &n1);
+    sscanf(stream, "%d", &n2);
+
+    printf("%d %d", n1, n2);
 }

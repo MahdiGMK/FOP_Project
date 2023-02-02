@@ -5,10 +5,10 @@
 #define NWLINE (-1)
 #define IOSIZE (100)
 
-int ReadOption(char **options);
+int ReadOption(FILE *istream, char **options);
 
-int ReadStrSTDIN(char *str);
+int ReadStrSTDIN(FILE *istream, char *str);
 
-void ConsumeSTDIN();
+void ConsumeSTDIN(FILE *istream);
 
 #endif
