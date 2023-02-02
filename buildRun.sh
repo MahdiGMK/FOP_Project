@@ -1,1 +1,1 @@
-./build.sh && ./bin/command_exec.out #project to launch right after
+./build.sh && ./bin/viim.out #project to launch right after
