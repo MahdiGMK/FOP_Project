@@ -1,4 +1,5 @@
 bin/*
+.root/*
 root/*
 .istream.txt
 .ostream.txt
