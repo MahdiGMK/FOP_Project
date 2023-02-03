@@ -838,6 +838,10 @@ void renderLine(char *ptr, int ln, int y)
 
 void render()
 {
+    char rfile[FILESIZE] = {};
+    if (fileAddress[0] == '/')
+        ReadFileNoAlloc(fileAddress + 1, rfile);
+
     int lnc = CountLines(file);
     // printw("%d", lnc);
 
@@ -873,7 +877,11 @@ void render()
     }
     attroff(COLOR_PAIR(1));
     if (fileAddress[0] == '/')
-        printw(" %s", fileAddress);
+    {
+        printw(" %s ", fileAddress);
+        if (strcmp(file, rfile))
+            printw(" + ");
+    }
     else
         printw(" Empty");
     move(LINES - 1, 0);

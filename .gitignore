@@ -1,1 +1,6 @@
 bin/*
+root/*
+.istream.txt
+.ostream.txt
+.tmp.viim
+..tmp.viim
