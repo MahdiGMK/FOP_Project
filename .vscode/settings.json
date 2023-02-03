@@ -18,6 +18,7 @@
         "type_traits": "c",
         "utility": "c",
         "cmath": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "commandreader.h": "c"
     }
 }

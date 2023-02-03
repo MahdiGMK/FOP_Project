@@ -6,6 +6,7 @@
 #include <string.h>
 #include <assert.h>
 #include <shared/RawCommand.h>
+#include <shared/IOLib.h>
 
 #define CMDSIZE (1000)
 
@@ -127,6 +128,10 @@ void AutoIndent()
     LoadTMP();
 }
 
+static void ReadCMD(FILE *istream)
+{
+}
+
 int CommandMode(int inp)
 {
     switch (inp)
@@ -160,6 +165,10 @@ int CommandMode(int inp)
         break;
 
     case '\n':
+        WriteFile(".istream.viim", cmd);
+        FILE *istream = fopen(".istream.viim", "r");
+        ReadCMD(istream);
+        fclose(istream);
         return 1;
 
     default:
@@ -541,27 +550,30 @@ void render()
     switch (actionMode)
     {
     case NORMAL:
-        printw("NORMAL  ");
+        printw(" NORMAL ");
         break;
     case COMMAND:
         printw("COMMAND ");
         break;
     case INSERT:
-        printw("INSERT  ");
+        printw(" INSERT ");
         break;
     case VISUAL:
-        printw("VISUAL  ");
+        printw(" VISUAL ");
         break;
     case FIND:
     case FINDHL:
-        printw("FIND    ");
+        printw("  FIND  ");
         break;
 
     default:
         break;
     }
     attroff(COLOR_PAIR(1));
-    printw(" %s", fileAddress);
+    if (fileAddress[0] == '/')
+        printw(" %s", fileAddress);
+    else
+        printw(" Empty");
     move(LINES - 1, 0);
 
     if (actionMode == COMMAND)
@@ -592,7 +604,6 @@ int main()
     logstream = fopen(".logstream.viim", "w");
 
     strcpy(file, "testtet tea t at\n teat \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nss ate\n etast");
-    strcpy(fileAddress, "empty");
 
     cursor.ln = 1, cursor.cn = 0, cursor.ptr = file;
 
