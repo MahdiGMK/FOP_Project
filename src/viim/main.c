@@ -5,6 +5,7 @@
 #include <shared/LibProject.h>
 #include <string.h>
 #include <assert.h>
+#include <shared/RawCommand.h>
 
 #define CMDSIZE (1000)
 
@@ -42,6 +43,7 @@ static char fileAddress[ADDRSIZE] = {};
 static char clipboard[FILESIZE] = {};
 static FilePos cursor, visBeg;
 static int wln = 1;
+static FILE *logstream;
 
 void FilePrv()
 {
@@ -89,7 +91,7 @@ void FileCursurUp()
 void Copy(char *ptr, int sz)
 {
     for (int i = 0; i < sz; i++)
-        if ((clipboard[i] = ptr[i]))
+        if (!(clipboard[i] = ptr[i]))
             return;
     clipboard[sz] = 0;
 }
@@ -99,6 +101,30 @@ void Paste(char *ptr)
     cursor.ptr += strlen(clipboard);
     cursor.ln = GetLnNum(file, cursor.ptr);
     cursor.cn = GetChNum(file, cursor.ptr);
+}
+
+FileHandlingStatus Save(char *address)
+{
+    return WriteFile(address, file);
+}
+FileHandlingStatus SaveTMP()
+{
+    return Save(".tmp.viim");
+}
+FileHandlingStatus Load(char *address)
+{
+    return ReadFileNoAlloc(address, file);
+}
+FileHandlingStatus LoadTMP()
+{
+    return Load(".tmp.viim");
+}
+
+void AutoIndent()
+{
+    SaveTMP();
+    _AutoIndent(logstream, "/.tmp.viim");
+    LoadTMP();
 }
 
 int CommandMode(int inp)
@@ -166,6 +192,9 @@ int NormalMode(int inp)
         actionMode = VISUAL;
         visBeg = cursor;
         break;
+    case '=':
+        AutoIndent();
+        break;
 
     case KEY_LEFT:
     case 'h':
@@ -230,6 +259,7 @@ int VisualMode(int inp)
     case 'h':
         FileCursurLeft();
         break;
+    case '\n':
     case KEY_DOWN:
     case 'j':
         FileCursurDown();
@@ -314,8 +344,23 @@ int InsertMode(int inp)
 
     case '\t':
         strcpy(ch, "    ");
-        ch[4] = 0;
         InsertPattern(cursor.ptr, ch), cursor.ptr += 3, FileNxt();
+        break;
+    case '{':
+        strcpy(ch, "{}");
+        InsertPattern(cursor.ptr, ch), FileNxt();
+        break;
+    case '[':
+        strcpy(ch, "[]");
+        InsertPattern(cursor.ptr, ch), FileNxt();
+        break;
+    case '(':
+        strcpy(ch, "()");
+        InsertPattern(cursor.ptr, ch), FileNxt();
+        break;
+    case '<':
+        strcpy(ch, "<>");
+        InsertPattern(cursor.ptr, ch), FileNxt();
         break;
     default:
         ch[0] = inp;
@@ -380,6 +425,7 @@ int FindMode(int inp)
     }
     return 0;
 }
+
 int FindHL(int inp)
 {
     switch (inp)
@@ -543,6 +589,8 @@ int main()
     init_pair(1, COLOR_BLACK, COLOR_CYAN);
     init_pair(2, COLOR_BLACK, COLOR_RED);
 
+    logstream = fopen(".logstream.viim", "w");
+
     strcpy(file, "testtet tea t at\n teat \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nss ate\n etast");
     strcpy(fileAddress, "empty");
 
@@ -564,6 +612,8 @@ int main()
         refresh();
     }
     endwin();
+
+    fclose(logstream);
 
     return 0;
 }
