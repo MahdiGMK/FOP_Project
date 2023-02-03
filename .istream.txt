@@ -1,1 +1,1 @@
-quit
+saveas /root/t2.txt

@@ -1,7 +1,7 @@
-bin/*
-.root/*
-root/*
 .istream.txt
 .ostream.txt
 .tmp.viim
 ..tmp.viim
+bin/*
+.root/*
+root/*
