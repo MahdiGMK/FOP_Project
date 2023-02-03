@@ -11,6 +11,13 @@
         "stat.h": "c",
         "string.h": "c",
         "iolib.h": "c",
-        "dirent.h": "c"
+        "dirent.h": "c",
+        "compare": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "cmath": "c",
+        "*.tcc": "c"
     }
 }

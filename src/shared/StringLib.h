@@ -7,6 +7,10 @@ void EraseSubstring(char *ptr, int sz);
 
 char *GetPtrAt(char *str, int ln, int cn);
 
+int GetLnNum(char *str, char *ptr);
+
+int GetChNum(char *str, char *ptr);
+
 char *GetEndLine(char *ptr);
 
 int CountLines(char *str);

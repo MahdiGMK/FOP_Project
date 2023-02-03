@@ -43,6 +43,22 @@ char *GetPtrAt(char *str, int ln, int cn)
     return ptr;
 }
 
+int GetLnNum(char *str, char *ptr)
+{
+    int cnt = 1;
+    for (; str < ptr; str++)
+        cnt += str[0] == '\n';
+    return cnt;
+}
+
+int GetChNum(char *str, char *ptr)
+{
+    int cnt = 0;
+    for (ptr--; ptr >= str && ptr[0] != '\n'; ptr--, cnt++)
+        ;
+    return cnt;
+}
+
 char *GetEndLine(char *ptr)
 {
     while (ptr[0] != '\n' && ptr[0] != 0)
