@@ -1,1 +1,1 @@
-replace -str1 a -str2 b -all
+replace -str1 t -str2 z -at 2

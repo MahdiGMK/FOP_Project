@@ -524,6 +524,7 @@ done:
 
 int _Replace(FILE *stream, char *address, char *pattern, char *replace, int at, int atn, int all)
 {
+    OUTPUT("%s , %s , %s , %d , %d , %d", address, pattern, replace, at, atn, all);
     if (address[0] != '/' || pattern[0] == 0 || (all && at))
         return 1;
 
@@ -543,7 +544,7 @@ int _Replace(FILE *stream, char *address, char *pattern, char *replace, int at, 
     if (ends)
         pattern[psz - 1] = 0, psz--;
 
-    if (!at)
+    if (!at && !all)
         atn = 1;
     int cnt = 0;
     char *lprint = NULL;
@@ -581,6 +582,7 @@ int _Replace(FILE *stream, char *address, char *pattern, char *replace, int at, 
                 }
             }
     }
+    OUTPUT("%d %d", cnt, atn);
     if (cnt < atn)
     {
         OUTPUT("Invalid Index");

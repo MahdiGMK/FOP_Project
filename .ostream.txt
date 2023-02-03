@@ -1,1 +1,2 @@
-Invalid Index
+/.tmp.viim , t , z , 1 , 2 , 0
+Replacement Successful
