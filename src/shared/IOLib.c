@@ -35,7 +35,10 @@ int ReadStrSTDIN(FILE *istream, char *str)
     {
         prv = fgetc(istream);
         if (prv == 0 || prv == '\n')
+        {
+            ungetc(prv, istream);
             return NWLINE;
+        }
     } while (prv == ' ');
 
     // scanf(" ");

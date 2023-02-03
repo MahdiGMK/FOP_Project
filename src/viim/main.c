@@ -104,17 +104,21 @@ void Paste(char *ptr)
     cursor.cn = GetChNum(file, cursor.ptr);
 }
 
-FileHandlingStatus Save(char *address)
+FileHandlingStatus SafeSave(char *address)
 {
-    return WriteFile(address, file);
+    return SafeWriteFile(address, file);
 }
 FileHandlingStatus SaveTMP()
 {
-    return Save(".tmp.viim");
+    return WriteFile(".tmp.viim", file);
 }
 FileHandlingStatus Load(char *address)
 {
-    return ReadFileNoAlloc(address, file);
+    FileHandlingStatus status = ReadFileNoAlloc(address, file);
+    cursor.ptr = GetPtrAt(file, cursor.ln, cursor.cn);
+    cursor.ln = GetLnNum(file, cursor.ptr);
+    cursor.cn = GetChNum(file, cursor.ptr);
+    return status;
 }
 FileHandlingStatus LoadTMP()
 {
@@ -124,12 +128,234 @@ FileHandlingStatus LoadTMP()
 void AutoIndent()
 {
     SaveTMP();
+    logstream = fopen(".ostream.txt", "w");
     _AutoIndent(logstream, "/.tmp.viim");
+    fclose(logstream);
     LoadTMP();
 }
 
-static void ReadCMD(FILE *istream)
+static int CMDAutoIndent(FILE *stream, FILE *istream, char *inputstream)
 {
+    char address[ADDRSIZE] = {};
+    ReadStrSTDIN(istream, address);
+    int dotmp = 0;
+    if (address[0] == 0)
+    {
+        dotmp = 1;
+        SaveTMP();
+        strcpy(address, "/.tmp.viim");
+    }
+
+    int opt = ReadOption(istream, (char *[]){
+                                      NULL});
+    switch (opt)
+    {
+    case NWLINE:
+    case ARMAN:
+        if (_AutoIndent(stream, address))
+            goto invalid;
+        if (dotmp)
+            LoadTMP();
+        return opt == ARMAN;
+
+    default:
+        ConsumeSTDIN(istream);
+    invalid:
+        OUTPUT("Invalid Format");
+        return -1;
+    }
+
+    return 0;
+}
+static int CMDReplace(FILE *stream, FILE *istream, char *inputstream)
+{
+    char address[ADDRSIZE] = {}, pattern[IOSIZE] = {}, replace[IOSIZE] = {};
+    int at = 0, atn = 0, all = 0;
+    SaveTMP();
+    strcpy(address, "/.tmp.viim");
+
+    while (1)
+    {
+        int opt = ReadOption(istream, (char *[]){
+                                          "-file",
+                                          "-str1",
+                                          "-str2",
+                                          "-at",
+                                          "-all",
+                                          NULL});
+
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(istream, address);
+            break;
+        case 1:
+            ReadStrSTDIN(istream, pattern);
+            break;
+        case 2:
+            ReadStrSTDIN(istream, replace);
+            break;
+        case 3:
+            at = 1;
+            fscanf(istream, "%d", &atn);
+            break;
+        case 4:
+            all = 1;
+            break;
+        case NWLINE:
+        case ARMAN:
+            if (_Replace(stream, address, pattern, replace, at, atn, all))
+                goto invalid;
+            LoadTMP();
+            return opt == ARMAN;
+
+        default:
+            ConsumeSTDIN(istream);
+        invalid:
+            OUTPUT("Invalid Format");
+            return -1;
+        }
+    }
+    return 0;
+}
+static int CMDSave(FILE *stream, FILE *istream, char *inputstream)
+{
+    if (fileAddress[0] != '/')
+    {
+        OUTPUT("Empty File! Use saveas Instead");
+        return -1;
+    }
+    SafeSave(fileAddress + 1);
+    OUTPUT("Saved Successfully");
+    return 0;
+}
+static int CMDSaveas(FILE *stream, FILE *istream, char *inputstream)
+{
+    char address[ADDRSIZE];
+    ReadStrSTDIN(istream, address);
+    if (address[0] != '/')
+    {
+        OUTPUT("Invalid Format");
+        return -1;
+    }
+    strcpy(fileAddress, address);
+    SafeSave(fileAddress + 1);
+    OUTPUT("Saved Successfully");
+    return 0;
+}
+static int CMDOpen(FILE *stream, FILE *istream, char *inputstream)
+{
+    char address[ADDRSIZE];
+    ReadStrSTDIN(istream, address);
+    if (address[0] != '/')
+    {
+        OUTPUT("Invalid Format");
+        return -1;
+    }
+    Load(address + 1);
+    strcpy(fileAddress, address);
+    OUTPUT("File Opened Successfully");
+    return 0;
+}
+
+static int ReadCMD(FILE *istream)
+{
+
+    int opt = ReadOption(istream, (char *[]){
+                                      "createfile",
+                                      "insertstr",
+                                      "cat",
+                                      "removestr",
+                                      "copy",
+                                      "cut",
+                                      "paste",
+                                      "undo",
+                                      "tree",
+                                      "compare",
+                                      "auto-indent",
+                                      "grep",
+                                      "find",
+                                      "replace",
+                                      "open",
+                                      "save",
+                                      "saveas",
+                                      "quit",
+                                      NULL});
+
+    char inputstream[FILESIZE] = {};
+    ReadOStream(inputstream);
+
+    FILE *stream = CreateOStream();
+    int res = 0;
+    switch (opt)
+    {
+    case 0:
+        res = CMD_CreateFile(stream, istream, inputstream);
+        break;
+    case 1:
+        res = CMD_InsertStr(stream, istream, inputstream);
+        break;
+    case 2:
+        res = CMD_CAT(stream, istream, inputstream);
+        break;
+    case 3:
+        res = CMD_RemoveStr(stream, istream, inputstream);
+        break;
+    case 4:
+        res = CMD_Copy(stream, istream, inputstream);
+        break;
+    case 5:
+        res = CMD_Cut(stream, istream, inputstream);
+        break;
+    case 6:
+        res = CMD_Paste(stream, istream, inputstream);
+        break;
+    case 7:
+        res = CMD_Undo(stream, istream, inputstream);
+        break;
+    case 8:
+        res = CMD_Tree(stream, istream, inputstream);
+        break;
+    case 9:
+        res = CMD_Compare(stream, istream, inputstream);
+        break;
+    case 10:
+        res = CMDAutoIndent(stream, istream, inputstream);
+        break;
+    case 11:
+        res = CMD_Grep(stream, istream, inputstream);
+        break;
+    case 12:
+        res = CMD_Find(stream, istream, inputstream);
+        break;
+    case 13:
+        res = CMDReplace(stream, istream, inputstream);
+        break;
+    case 14:
+        res = CMDOpen(stream, istream, inputstream);
+        break;
+    case 15:
+        res = CMDSave(stream, istream, inputstream);
+        break;
+    case 16:
+        res = CMDSaveas(stream, istream, inputstream);
+        break;
+    case 17:
+        return 1;
+    case NWLINE:
+        break;
+
+    default:
+        ConsumeSTDIN(istream);
+        OUTPUT("Invalid Format");
+        break;
+    }
+    fclose(stream);
+
+    if (res == 1)
+        ReadCMD(istream);
+
+    return 0;
 }
 
 int CommandMode(int inp)
@@ -165,10 +391,17 @@ int CommandMode(int inp)
         break;
 
     case '\n':
+        while (cmdptr[0])
+            cmdptr++;
+        cmdptr++[0] = '\n';
+        cmdptr[0] = 0;
+
         WriteFile(".istream.viim", cmd);
         FILE *istream = fopen(".istream.viim", "r");
-        ReadCMD(istream);
+        int rs = ReadCMD(istream);
         fclose(istream);
+        if (rs)
+            return -1;
         return 1;
 
     default:
@@ -467,6 +700,8 @@ int tick(int inp)
             int rs = CommandMode(inp);
             if (rs == 1)
                 actionMode = NORMAL;
+            else if (rs == -1)
+                return 1;
             break;
         case NORMAL:
             return NormalMode(inp);
@@ -601,10 +836,6 @@ int main()
     init_pair(1, COLOR_BLACK, COLOR_CYAN);
     init_pair(2, COLOR_BLACK, COLOR_RED);
 
-    logstream = fopen(".logstream.viim", "w");
-
-    strcpy(file, "testtet tea t at\n teat \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nss ate\n etast");
-
     cursor.ln = 1, cursor.cn = 0, cursor.ptr = file;
 
     render();
@@ -623,8 +854,6 @@ int main()
         refresh();
     }
     endwin();
-
-    fclose(logstream);
 
     return 0;
 }
