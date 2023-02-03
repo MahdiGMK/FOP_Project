@@ -6,6 +6,7 @@
 #include <string.h>
 #include <assert.h>
 #include <shared/RawCommand.h>
+#include <locale.h>
 #include <shared/IOLib.h>
 
 #define CMDSIZE (1000)
@@ -900,6 +901,7 @@ void render()
 
 int main()
 {
+    setlocale(LC_ALL, "");
     WINDOW *wnd = initscr();
     keypad(wnd, 1);
     cbreak();
