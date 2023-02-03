@@ -14,6 +14,7 @@ Enum(ActionMode){
     INSERT,
     VISUAL,
     FIND,
+    FINDHL,
 };
 
 Struct(FilePos)
@@ -34,7 +35,10 @@ static int max(int a, int b)
 static ActionMode actionMode = NORMAL;
 static char cmd[CMDSIZE] = {};
 static char *cmdptr;
+static char fnd[CMDSIZE] = {};
+static char *fndptr;
 static char file[FILESIZE] = {};
+static char fileAddress[ADDRSIZE] = {};
 static char clipboard[FILESIZE] = {};
 static FilePos cursor, visBeg;
 static int wln = 1;
@@ -146,9 +150,14 @@ int NormalMode(int inp)
 {
     switch (inp)
     {
+    case '/':
+        actionMode = FIND;
+        fndptr = fnd;
+        break;
     case ':':
         actionMode = COMMAND;
         cmdptr = cmd;
+        cmd[0] = 0;
         break;
     case 'i':
         actionMode = INSERT;
@@ -162,6 +171,7 @@ int NormalMode(int inp)
     case 'h':
         FileCursurLeft();
         break;
+    case '\n':
     case KEY_DOWN:
     case 'j':
         FileCursurDown();
@@ -267,6 +277,7 @@ int VisualMode(int inp)
 
 int InsertMode(int inp)
 {
+    char ch[5] = "a";
     switch (inp)
     {
     case 27:
@@ -301,8 +312,12 @@ int InsertMode(int inp)
         EraseSubstring(cursor.ptr, 1);
         break;
 
+    case '\t':
+        strcpy(ch, "    ");
+        ch[4] = 0;
+        InsertPattern(cursor.ptr, ch), cursor.ptr += 3, FileNxt();
+        break;
     default:
-        char ch[2] = "a";
         ch[0] = inp;
         InsertPattern(cursor.ptr, ch), FileNxt();
         break;
@@ -312,6 +327,80 @@ int InsertMode(int inp)
 
 int FindMode(int inp)
 {
+    switch (inp)
+    {
+    case 27:
+        fnd[0] = 0;
+        return 1;
+
+    case KEY_LEFT:
+        if (fndptr > fnd)
+            fndptr--;
+        break;
+    case KEY_RIGHT:
+        if (fndptr[0])
+            fndptr++;
+        break;
+    case KEY_HOME:
+        fndptr = fnd;
+        break;
+    case KEY_END:
+        fndptr = GetEndLine(fndptr);
+        break;
+
+    case KEY_BACKSPACE:
+        if (fnd[0] == 0)
+            return 1;
+        if (fndptr > fnd)
+            EraseSubstring(fndptr - 1, 1), fndptr--;
+        break;
+    case KEY_DC:
+        EraseSubstring(fndptr, 1);
+        break;
+
+    case '\n':
+        char *fdptr = FindPattern(cursor.ptr + (cursor.ptr[0] != 0), fnd);
+        if (!fdptr)
+            fdptr = FindPattern(file, fnd);
+        if (fdptr)
+        {
+            cursor.ptr = fdptr;
+            cursor.ln = GetLnNum(file, cursor.ptr);
+            cursor.cn = GetChNum(file, cursor.ptr);
+        }
+        actionMode = FINDHL;
+        break;
+
+    default:
+        char ch[2] = "a";
+        ch[0] = inp;
+        InsertPattern(fndptr, ch);
+        fndptr++;
+        break;
+    }
+    return 0;
+}
+int FindHL(int inp)
+{
+    switch (inp)
+    {
+    case 'n':
+        char *fdptr = FindPattern(cursor.ptr + (cursor.ptr[0] != 0), fnd);
+        if (!fdptr)
+            fdptr = FindPattern(file, fnd);
+        if (fdptr)
+        {
+            cursor.ptr = fdptr;
+            cursor.ln = GetLnNum(file, cursor.ptr);
+            cursor.cn = GetChNum(file, cursor.ptr);
+        }
+        break;
+
+    default:
+        fnd[0] = 0;
+        return 1;
+    }
+    return 0;
 }
 
 int tick(int inp)
@@ -338,6 +427,10 @@ int tick(int inp)
             if (FindMode(inp))
                 actionMode = NORMAL;
             break;
+        case FINDHL:
+            if (FindHL(inp))
+                actionMode = NORMAL;
+            break;
         }
     return 0;
 }
@@ -346,13 +439,42 @@ void renderLine(char *ptr, int ln, int y)
 {
     move(y, 0);
     // colorize?
+
     printw("%d", ln);
     move(y, 4);
 
+    char *highBeg = (visBeg.ptr < cursor.ptr ? visBeg.ptr : cursor.ptr);
+    char *highEnd = (visBeg.ptr > cursor.ptr ? visBeg.ptr : cursor.ptr) + 1;
+    int fndlen = strlen(fnd);
+    if (actionMode == FIND || actionMode == FINDHL)
+    {
+        highBeg = FindPattern(ptr, fnd);
+        highEnd = highBeg + fndlen;
+    }
+
     for (; ptr[0] && ptr[0] != '\n'; ptr++)
     {
-        // colorize?
+        switch (actionMode)
+        {
+        case VISUAL:
+            if (highBeg <= ptr && ptr < highEnd)
+                attron(COLOR_PAIR(1));
+            break;
+        case FINDHL:
+        case FIND:
+            if (ptr == highEnd)
+            {
+                highBeg = FindPattern(highBeg + 1, fnd);
+                highEnd = highBeg + fndlen;
+            }
+            if (highBeg <= ptr && ptr < highEnd)
+                attron(COLOR_PAIR(2));
+            break;
+        }
         printw("%c", ptr[0]);
+
+        attroff(COLOR_PAIR(1));
+        attroff(COLOR_PAIR(2));
     }
     printw("\n");
 }
@@ -369,33 +491,42 @@ void render()
     }
 
     move(LINES - 2, 0);
+    attron(COLOR_PAIR(1));
     switch (actionMode)
     {
     case NORMAL:
-        printw("NORMAL");
+        printw("NORMAL  ");
         break;
     case COMMAND:
-        printw("COMMAND");
+        printw("COMMAND ");
         break;
     case INSERT:
-        printw("INSERT");
+        printw("INSERT  ");
         break;
     case VISUAL:
-        printw("VISUAL");
+        printw("VISUAL  ");
         break;
     case FIND:
-        printw("FIND");
+    case FINDHL:
+        printw("FIND    ");
         break;
 
     default:
         break;
     }
-    move(LINES - 2, 8);
+    attroff(COLOR_PAIR(1));
+    printw(" %s", fileAddress);
     move(LINES - 1, 0);
+
     if (actionMode == COMMAND)
     {
         printw(":%s", cmd);
         move(LINES - 1, cmdptr - cmd + 1);
+    }
+    else if (actionMode == FIND)
+    {
+        printw("/%s", fnd);
+        move(LINES - 1, fndptr - fnd + 1);
     }
     else
         move(cursor.ln - wln, cursor.cn + 4);
@@ -407,8 +538,13 @@ int main()
     keypad(wnd, 1);
     cbreak();
     noecho();
+    start_color();
+
+    init_pair(1, COLOR_BLACK, COLOR_CYAN);
+    init_pair(2, COLOR_BLACK, COLOR_RED);
 
     strcpy(file, "testtet tea t at\n teat \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nss ate\n etast");
+    strcpy(fileAddress, "empty");
 
     cursor.ln = 1, cursor.cn = 0, cursor.ptr = file;
 
