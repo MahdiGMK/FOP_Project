@@ -19,6 +19,7 @@
         "utility": "c",
         "cmath": "c",
         "*.tcc": "c",
-        "commandreader.h": "c"
+        "commandreader.h": "c",
+        "algorithm": "c"
     }
 }

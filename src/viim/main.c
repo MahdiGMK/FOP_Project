@@ -129,12 +129,57 @@ FileHandlingStatus LoadTMP()
 void AutoIndent()
 {
     SaveTMP();
-    logstream = fopen(".ostream.txt", "w");
+    logstream = CreateOStream();
     _AutoIndent(logstream, "/.tmp.viim");
     fclose(logstream);
     LoadTMP();
 }
+static void UNDO()
+{
+    logstream = CreateOStream();
+    if (fileAddress[0] == '/')
+    {
+        _Undo(logstream, fileAddress);
+        Load(fileAddress + 1);
+        strcpy(cmdres, "Successfull Undo");
+    }
+    else
+        strcpy(cmdres, "Please Save The File Before Undo");
+    fclose(logstream);
+}
 
+static int CMDUndo(FILE *stream, FILE *istream, char *inputstream)
+{
+    char address[IOSIZE];
+    strcpy(address, fileAddress);
+    // if (fileAddress[0] == '/')
+    //     , SafeSave(fileAddress + 1);
+
+    while (1)
+    {
+        int opt = ReadOption(istream, (char *[]){
+                                          "-file",
+                                          NULL});
+        switch (opt)
+        {
+        case 0:
+            ReadStrSTDIN(istream, address);
+            break;
+        case NWLINE:
+        case ARMAN:
+            if (_Undo(stream, address))
+                goto invalid;
+            return opt == ARMAN;
+
+        default:
+            ConsumeSTDIN(istream);
+        invalid:
+            OUTPUT("Invalid Format");
+            return -1;
+        }
+    }
+    return 0;
+}
 static int CMDAutoIndent(FILE *stream, FILE *istream, char *inputstream)
 {
     char address[ADDRSIZE] = {};
@@ -312,7 +357,7 @@ static int ReadCMD(FILE *istream)
         res = CMD_Paste(stream, istream, inputstream);
         break;
     case 7:
-        res = CMD_Undo(stream, istream, inputstream);
+        res = CMDUndo(stream, istream, inputstream);
         break;
     case 8:
         res = CMD_Tree(stream, istream, inputstream);
@@ -454,6 +499,9 @@ int NormalMode(int inp)
         break;
     case '=':
         AutoIndent();
+        break;
+    case 'u':
+        UNDO();
         break;
 
     case KEY_LEFT:
