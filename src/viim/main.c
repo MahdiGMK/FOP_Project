@@ -36,6 +36,7 @@ static int max(int a, int b)
 
 static ActionMode actionMode = NORMAL;
 static char cmd[CMDSIZE] = {};
+static char cmdres[CMDSIZE] = {};
 static char *cmdptr;
 static char fnd[CMDSIZE] = {};
 static char *fndptr;
@@ -341,12 +342,11 @@ static int ReadCMD(FILE *istream)
         res = CMDSaveas(stream, istream, inputstream);
         break;
     case 17:
-        return 1;
+        return 1; // quit
     case NWLINE:
         break;
 
     default:
-        ConsumeSTDIN(istream);
         OUTPUT("Invalid Format");
         break;
     }
@@ -396,12 +396,30 @@ int CommandMode(int inp)
         cmdptr++[0] = '\n';
         cmdptr[0] = 0;
 
-        WriteFile(".istream.viim", cmd);
-        FILE *istream = fopen(".istream.viim", "r");
+        WriteFile(".istream.txt", cmd);
+        FILE *istream = fopen(".istream.txt", "r");
         int rs = ReadCMD(istream);
         fclose(istream);
         if (rs)
             return -1;
+
+        char ostream[FILESIZE];
+        ReadOStream(ostream);
+        char *ptr = GetPtrAt(ostream, 2, 1);
+        if (ptr[0])
+        {
+            strcpy(file, ostream);
+            fileAddress[0] = 0;
+        }
+        else
+        {
+            if (ptr > ostream)
+                ptr[-1] = 0;
+            strcpy(cmdres, ostream);
+            if (fileAddress[0] == '/')
+                Load(fileAddress + 1);
+        }
+
         return 1;
 
     default:
@@ -814,13 +832,20 @@ void render()
     if (actionMode == COMMAND)
     {
         printw(":%s", cmd);
-        move(LINES - 1, cmdptr - cmd + 1);
     }
     else if (actionMode == FIND)
     {
         printw("/%s", fnd);
-        move(LINES - 1, fndptr - fnd + 1);
     }
+    else if (actionMode == NORMAL)
+    {
+        printw("%s", cmdres);
+    }
+
+    if (actionMode == FIND)
+        move(LINES - 1, fndptr - fnd + 1);
+    else if (actionMode == COMMAND)
+        move(LINES - 1, cmdptr - cmd + 1);
     else
         move(cursor.ln - wln, cursor.cn + 4);
 }
