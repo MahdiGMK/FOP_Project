@@ -505,7 +505,6 @@ int _Find(FILE *stream, char *address, char *pattern, int count, int at, int atn
                 if (cnt == atn)
                 {
                     PRINT("%d", val);
-                    goto done;
                 }
             }
         }
@@ -524,7 +523,7 @@ done:
 
 int _Replace(FILE *stream, char *address, char *pattern, char *replace, int at, int atn, int all)
 {
-    OUTPUT("%s , %s , %s , %d , %d , %d", address, pattern, replace, at, atn, all);
+    // OUTPUT("test");
     if (address[0] != '/' || pattern[0] == 0 || (all && at))
         return 1;
 
@@ -555,13 +554,15 @@ int _Replace(FILE *stream, char *address, char *pattern, char *replace, int at, 
             char *begpt = ptr;
             char *endpt = ptr + psz;
             if (begs)
+            {
                 begpt = GetWordBegin(file, begpt - 1);
+            }
             if (ends)
                 endpt = GetWordEnd(endpt);
 
             EraseSubstring(begpt, endpt - begpt);
             InsertPattern(begpt, replace);
-            ptr = begpt;
+            ptr = begpt + strlen(replace) - 1;
         }
         else
             for (char *pptr = begs ? GetWordBegin(file, ptr - 1) : ptr; pptr <= ptr; pptr++)
@@ -582,7 +583,6 @@ int _Replace(FILE *stream, char *address, char *pattern, char *replace, int at, 
                 }
             }
     }
-    OUTPUT("%d %d", cnt, atn);
     if (cnt < atn)
     {
         OUTPUT("Invalid Index");
